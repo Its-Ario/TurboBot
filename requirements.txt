@@ -1,0 +1,4 @@
+balethon
+python-bale-bot
+requests
+aiohttp
