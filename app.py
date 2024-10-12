@@ -30,4 +30,4 @@ async def get_score():
         return jsonify({"error": "User hash not found"}), 404
 
 if __name__ == "__main__":
-    app.run()
+    app.run(ssl_context='adhoc', host='0.0.0.0', port='443')

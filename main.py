@@ -87,15 +87,15 @@ async def on_message(message:bale.Message):
         if text == "/start" or text == "🏠 بازگشت":
             await client.forward_message(message.chat.id,1386783796,55)
             keyboard = torow(
-                [("🤖 هوش مصنوعی"), ("🐍 مار بازی")],
+                [("🤖 هوش مصنوعی"), ("🐍 بازی و دریافت سکه")],
                 [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                 [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                 [("👤 پشتیبانی"),("👤 حساب کاربری")]
             )
             await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
         
-        elif text == "🐍 مار بازی":
-            URL = "http://127.0.0.1:5500/game/index.html?hash={hash}"
+        elif text == "🐍 بازی و دریافت سکه":
+            URL = "https://tanjiro-bale-bot.vercel.app/?hash={hash}"
             
             user_id = str(m.author.id)
             user_hash = hashlib.sha256(user_id.encode()).hexdigest()
@@ -103,12 +103,12 @@ async def on_message(message:bale.Message):
             return await m.reply(URL.format(hash=user_hash))
             
         elif text == "score":
-            URL = "http://127.0.0.1:5000/get-score?hash={hash}"
+            URL = "https://127.0.0.1:443/get-score?hash={hash}"
             
             user_id = str(m.author.id)
             user_hash = hashlib.sha256(user_id.encode()).hexdigest()
             
-            data = requests.get(URL.format(hash=user_hash)).json()
+            data = requests.get(URL.format(hash=user_hash), verify=False).json()
             print(data)
             return await m.reply(f"Score: {data["score"]}")
 
@@ -131,7 +131,7 @@ async def on_message(message:bale.Message):
                 if text == "/start" or text == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
-                        [("🤖 هوش مصنوعی")],
+                        [("🤖 هوش مصنوعی"), ("🐍 بازی و دریافت سکه")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -175,7 +175,7 @@ async def on_message(message:bale.Message):
             if d == "/start" or text == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
-                        [("🤖 هوش مصنوعی")],
+                        [("🤖 هوش مصنوعی"), ("🐍 بازی و دریافت سکه")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -198,7 +198,7 @@ async def on_message(message:bale.Message):
                                             [("🏠 بازگشت")]
                                         ))
             except:
-                m.reply("❌ خطا")
+                await m.reply("❌ خطا")
                     
 
         elif text == "✏️ ساخت فونت":
@@ -228,7 +228,7 @@ async def on_message(message:bale.Message):
             if name == "/start" or name == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
-                        [("🤖 هوش مصنوعی")],
+                        [("🤖 هوش مصنوعی"), ("🐍 بازی و دریافت سکه")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -325,7 +325,7 @@ async def on_message(message:bale.Message):
             if name == "/start" or name == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
-                        [("🤖 هوش مصنوعی")],
+                        [("🤖 هوش مصنوعی"), ("🐍 بازی و دریافت سکه")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
