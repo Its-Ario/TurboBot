@@ -14,6 +14,8 @@ def torowinline(*row:list):
     dx = 1
     for item in row:
         for x in item:
+            if x[1].startswith("URL:"):
+                t.add(bale.InlineKeyboardButton(x[0],url=x[1].removeprefix("URL:")),dx)
             t.add(bale.InlineKeyboardButton(x[0],callback_data=x[1]),dx)
         dx += 1
     return t

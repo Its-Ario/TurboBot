@@ -50,7 +50,9 @@ def torowinline(*row:list):
     dx = 1
     for item in row:
         for x in item:
-            t.add(bale.InlineKeyboardButton(x[0],callback_data=x[1]),dx)
+            if x[1].startswith("URL:"):
+                t.add(bale.InlineKeyboardButton(x[0],url=x[1].removeprefix("URL:")),dx)
+            else: t.add(bale.InlineKeyboardButton(x[0],callback_data=x[1]),dx)
         dx += 1
     return t
 
@@ -95,22 +97,17 @@ async def on_message(message:bale.Message):
             await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
         
         elif text == "🐍 بازی و دریافت سکه":
-            URL = "https://tanjiro-bale-bot.vercel.app/?hash={hash}"
+            URL = "http://5.10.249.8:5000/?hash={hash}"
             
             user_id = str(m.author.id)
             user_hash = hashlib.sha256(user_id.encode()).hexdigest()
             
-            return await m.reply(URL.format(hash=user_hash))
+            formmated_url = URL.format(hash=user_hash)
             
-        elif text == "score":
-            URL = "https://127.0.0.1:443/get-score?hash={hash}"
-            
-            user_id = str(m.author.id)
-            user_hash = hashlib.sha256(user_id.encode()).hexdigest()
-            
-            data = requests.get(URL.format(hash=user_hash), verify=False).json()
-            print(data)
-            return await m.reply(f"Score: {data["score"]}")
+            return await m.reply("🐍 برای بازی و دریافت سکه روی لینک زیر کلیک کنید!",components=torowinline(
+                [("شروع بازی", f"URL:{formmated_url}")],
+                [("دریافت امتیاز", f"getscore_{user_id}")]
+            ))
 
         
         elif text == "🤖 هوش مصنوعی":
@@ -504,6 +501,21 @@ async def on_callback(callback_query:bale.CallbackQuery):
         
     elif query == "add_cta":
         pass
+    
+    elif query.startswith("getscore"):
+        db = database.read_database()
+        URL = "http://5.10.249.8:5000/get-score?hash={hash}"
+        
+        user_id = query.removeprefix("getscore_")
+        user_hash = hashlib.sha256(user_id.encode()).hexdigest()
+        
+        data = requests.get(URL.format(hash=user_hash)).json()
+        if data.get("ok"):
+            db[str(user.id)]["coins"] += data["score"]
+            database.write_database(db)
+            return await m.reply("شما *{score}* سکه از  بازی بدست آوردید!".format(data["score"]))
+        if data.get("error") == "User hash not found":
+            return await m.reply(f"امتیازی برای شما ثبت نشده!")
 
     elif query == "add_cta_one":
         
