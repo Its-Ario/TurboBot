@@ -380,30 +380,16 @@ async def on_message(message:bale.Message):
             ))
         
         elif (text == "/admin" or text == "/panel") and user.id in admins:
-            if develop_mode == True:
-                keyboard = torowinline(
-                    [("🛡️ تعداد اعضا","users")],
-                    [("🛡️ ارسال پیام به همه","sta")],
-                    [("🛡️ ارسال سکه به همه","add_cta")],
-                    [("🛡️ ارسال سکه به یک شخص","add_cta_one")],
-                    [("🛡️ ارسال پیام به یک شخص","sta_one")],
-                    [("❌ غیرفعال سازی حالت شخصی","dev_mode:off")],
-                    [("👤 سایت پنل مدیریت","panel")]
-                )
+            keyboard = torowinline(
+                [("🛡️ تعداد اعضا","users")],
+                [("🛡️ ارسال پیام به همه","sta")],
+                [("🛡️ ارسال سکه به همه","add_cta")],
+                [("🛡️ ارسال سکه به یک شخص","add_cta_one")],
+                [("🛡️ ارسال پیام به یک شخص","sta_one")],
+                [("👤 سایت پنل مدیریت","panel")]
+            )
 
-                await client.send_message(user.id,"دستورات مدیریتی",components=keyboard)
-            else:
-                keyboard = torowinline(
-                    [("🛡️ تعداد اعضا","users")],
-                    [("🛡️ ارسال پیام به همه","sta")],
-                    [("🛡️ ارسال سکه به همه","add_cta")],
-                    [("🛡️ ارسال سکه به یک شخص","add_cta_one")],
-                    [("🛡️ ارسال پیام به یک شخص","sta_one")],
-                    [("✅ فعال سازی حالت شخصی","dev_mode:on")],
-                    [("👤 سایت پنل مدیریت","panel")]
-                )
-
-                await client.send_message(user.id,"دستورات مدیریتی",components=keyboard)
+            await client.send_message(user.id,"دستورات مدیریتی",components=keyboard)
     
     if state.get(str(user.id)) == "ai_chat":
         if text == "🏠 بازگشت":
@@ -469,7 +455,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
     
     if query == "users":
         db = database.read_database()
-        await m.reply(f"تعداد کاربران: {len(db.keys())}")
+        await m.reply(f"تعداد کاربران: {len([user for user in db.keys() if str(user).isalnum()])}")
 
     elif query == "sta":
         users = database.read_database().keys()
@@ -497,6 +483,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         else:
             m = await sm(user.id,sf())
             for x in users:
+                if not str(x).isalnum(): continue
                 try:
                     await client.send_message(x,answer.text)
                     sended += 1
@@ -505,7 +492,43 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 await m.edit(sf())
         
     elif query == "add_cta":
-        pass
+        users = database.read_database().keys()
+        await sm(user.id,"✏️ مقدار سکه موردنظر را ارسال کنید\n[لغو](send:لغو)")
+        state[str(user.id)] = "add_cta"
+        def answer_checker(m:bale.Message):
+            return m.author == user and bool(m.text)
+        answer = await client.wait_for("message",check=answer_checker)
+        if not answer.text.isnumeric():
+            return await m.reply("ورودی نامتعبر")
+        db = database.read_database()
+        
+        coin_msg = "💰 ادمین بهت *{0}* سکه داد".format(answer.text)
+        
+        sended = 0
+        failed = 0
+        def sf():
+            return f"""\
+👤 تعداد کل کاربران : {len(users)}
+✅ تعداد ارسال شده : {sended}
+❌ تعداد ارسال نشده : {failed}
+✏️ تعداد کل پیام ها : {sended+failed}
+"""
+        if answer.text == "لغو":
+            await m.reply("لغو شد")
+            del state[str(user.id)]
+            return await m.reply("بازگشت به پنل",components=torow([("/admin")]))
+        
+        else:
+            m = await sm(user.id,sf())
+            for x in users:
+                if not str(x).isalnum(): continue
+                try:
+                    db[str(user.id)]["coins"] += int(answer.text)
+                    await client.send_message(x,coin_msg)
+                    sended += 1
+                except:
+                    failed += 1
+                await m.edit(sf())
     
     elif query.startswith("getscore"):
         db = database.read_database()
@@ -519,7 +542,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             score = data["score"]
             db[str(user.id)]["coins"] += score
             database.write_database(db)
-            return await m.reply("شما *{score}* سکه از  بازی بدست آوردید!".format(score=score))
+            return await m.reply("شما *{score}* سکه از بازی بدست آوردید!".format(score=score))
         if data.get("error") == "User hash not found":
             return await m.reply(f"سکه ای برای شما ثبت نشده!")
 
@@ -567,7 +590,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         db[str(s)]["coins"] += int(answer.text)
         database.write_database(db)
         await m.reply("کاربر با موفقیت آپدیت شد")
-        await sm(s,"💰 ادمین بهت {0} پول داد".format(answer.text))
+        await sm(s,"💰 ادمین بهت {0} سکه داد".format(answer.text))
 
     elif query == "sta_one":
         db = database.read_database().keys()
