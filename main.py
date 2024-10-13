@@ -1,17 +1,10 @@
 import bale
-import balethon
 import aiohttp
 import requests 
 import json
-import os
 import database
 import random
 import hashlib
-
-import balethon.objects
-import balethon.conditions
-import balethon.event_handlers
-
 ai_chat = 15
 logo_make = 20
 image_gen = 20
@@ -27,12 +20,9 @@ owner = 429632558
 developer = 2089986546
 admins = [owner , developer]
 
-client_bt = balethon.Client(token)
 client = bale.Bot(token)
 
-
 develop_mode = False
-
 
 state = {}
 
@@ -56,9 +46,36 @@ def torowinline(*row:list):
         dx += 1
     return t
 
-join_channels = []
-with open("joins.json", "r") as f:
-    join_channels = json.load(f)
+async def checkChannels(message:bale.Message):
+    verified = True
+    join_channels = []
+    with open("joins.json", "r") as f:
+        join_channels = json.load(f)
+        channels = {}
+        for channel in join_channels:
+            try:
+                chat = await client.get_chat(channel)
+                user = await client.get_user(message.author.id)
+                await chat.get_chat_member(user)
+                        
+            except bale.error.BadRequest as e:
+                if e.message == "Bad Request: message not found":
+                    verified = False
+                    channels[channel] = f"URL:https://{chat.invite_link}"
+            except Exception as e:
+                print(e)
+    
+    if not verified:        
+        try:
+            lst = [[(f"کانال {cnt+1}", url)] for cnt, url in enumerate(channels.values())]
+
+            await message.reply(
+                "Join Channels:", 
+                components=torowinline(*lst)
+            )
+        except Exception as e: print(e)
+    
+    return verified
 
 
 @client.event
@@ -74,6 +91,7 @@ async def on_message(message:bale.Message):
     text = message.content
     m = message
     user = message.author
+    if not await checkChannels(m): return
     if str(user.id) in state.keys():return
     if str(user.id) not in state.keys():
         database.create_database()
@@ -385,8 +403,10 @@ async def on_message(message:bale.Message):
                 [("🛡️ ارسال پیام به همه","sta")],
                 [("🛡️ ارسال سکه به همه","add_cta")],
                 [("🛡️ ارسال سکه به یک شخص","add_cta_one")],
-                [("🛡️ ارسال پیام به یک شخص","sta_one")],
-                [("👤 سایت پنل مدیریت","panel")]
+                [("🛡️ اضافه کردن کانال", "cha_add")],
+                [("🛡️ حذف کانال", "cha_del")],
+                [("🛡️ لیست کانال ها", "cha_list")],
+                # [("👤 سایت پنل مدیریت","panel")]
             )
 
             await client.send_message(user.id,"دستورات مدیریتی",components=keyboard)
@@ -462,21 +482,28 @@ async def on_callback(callback_query:bale.CallbackQuery):
         await sm(user.id,"✏️ متن پیام خود را بفرستید\n[لغو](send:لغو)")
         state[str(user.id)] = "sta"
         def answer_checker(m:bale.Message):
-            return m.author == user and bool(m.text)
+            return m.author == user and (bool(m.text) or bool(m.caption))
         answer = await client.wait_for("message",check=answer_checker)
         
+        fw = False
+        if answer.forward_from:
+            fw = True
+                    
+        if answer.attachment:
+            img = answer.attachment.to_input_file()
+        else: img = None
         
         sended = 0
         failed = 0
         def sf():
             return f"""\
-👤 تعداد کل کاربران : {len(users)}
-✅ تعداد ارسال شده : {sended}
-❌ تعداد ارسال نشده : {failed}
-✏️ تعداد کل پیام ها : {sended+failed}
-"""
+        👤 تعداد کل کاربران : {len(users)}
+        ✅ تعداد ارسال شده : {sended}
+        ❌ تعداد ارسال نشده : {failed}
+        ✏️ تعداد کل پیام ها : {sended+failed}
+        """
         if answer.text == "لغو":
-            await m.reply("لغو شد")
+            await m.reply("لغو شد") 
             del state[str(user.id)]
             return await m.reply("بازگشت به پنل",components=torow([("/admin")]))
         
@@ -485,7 +512,11 @@ async def on_callback(callback_query:bale.CallbackQuery):
             for x in users:
                 if not str(x).isalnum(): continue
                 try:
-                    await client.send_message(x,answer.text)
+                    if fw:
+                        await client.forward_message(x, answer.chat_id, answer._id)
+                    elif img:
+                        await client.send_photo(x, img, caption=answer.caption)
+                    else: await client.send_message(x,answer.text)
                     sended += 1
                 except:
                     failed += 1
@@ -592,41 +623,77 @@ async def on_callback(callback_query:bale.CallbackQuery):
         await m.reply("کاربر با موفقیت آپدیت شد")
         await sm(s,"💰 ادمین بهت {0} سکه داد".format(answer.text))
 
-    elif query == "sta_one":
-        db = database.read_database().keys()
-        await m.reply("آیدی عددی کاربر را بفرستید")
-        state[str(user.id)] = "sta_one"
-        def answer_checker(m:bale.Message):
-            return m.author == user and bool(m.text)
-        answer = await client.wait_for("message",check=answer_checker)
-        try:
-            int(answer.text)
+    elif query.startswith("cha"):
+        clean = query.removeprefix("cha_")
+        if clean == "add":
+            state[str(user.id)] = "cha_add"
+            with open("joins.json", "r") as f:
+                current_data:list = json.load(f)
+                
+            await m.reply("Enter Channel ID:")
+            def answer_checker(m:bale.Message):
+                return m.author.id == user.id and bool(m.text)
+            text = await client.wait_for("message",check=answer_checker)
+            
+            if len(text.content) != 10 or not text.content.isnumeric():
+                del state[str(user.id)]
+                return await text.reply("Invalid ID!")
+            
+            if text.content in current_data:
+                del state[str(user.id)]
+                return await text.reply("Channel Already Added!")
+                
+            current_data.append(text.content)
+            
+            with open("joins.json", "w") as f:
+                json.dump(current_data, f)
+                
+            await text.reply(f"Added Channel {text.content}")
             del state[str(user.id)]
-        except:
-            await m.reply("آیدی صحیح نیست",components=torowinline(
-                [
-                    ("تلاش مجدد","sta_one")
-                ]
-            ))
+        elif clean == "del":
+            state[str(user.id)] = "cha_del"
+            
+            with open("joins.json", "r") as f:
+                current_data:list = json.load(f)
+                
+            await m.reply("Enter Channel ID:")
+            def answer_checker(m:bale.Message):
+                return m.author.id == user.id and bool(m.text)
+            text = await client.wait_for("message",check=answer_checker)
+            
+            if text.content not in current_data:
+                del state[str(user.id)]
+                return await text.reply("Channel Not In Database!")
+            
+            current_data.remove(text.content)
+            
+            with open("joins.json", "w") as f:
+                json.dump(current_data, f)
+                
+            await text.reply(f"Removed Channel {text.content}")
+            del state[str(user.id)]
+            
+        elif clean == "list":
+            state[str(user.id)] = "cha_list"
+            
+            with open("joins.json", "r") as f:
+                current_data:list = json.load(f)
+            
+            msg = ""
+            for channel_id in current_data:
+                try:
+                    chat = await client.get_chat(channel_id)
+                    msg += f"- [{chat.title}](https://{chat.invite_link}) ({f"{chat.username}, {channel_id}"})\n"
+                except bale.error.BadRequest as e:
+                    if e.message == "Bad Request: message not found":
+                        msg += f"- _Invalid Channel_ ({channel_id})\n"
+                        
+            if not msg:
+                msg = "No Channels Found!"
+                        
+            await m.reply(msg)
+                        
 
-    elif query == "dev_mode:off":
-        develop_mode = False
-        await m.reply("میتوانید به صورت عادی از بات استفاده کنید")
 
-    elif query == "dev_mode:on":
-        develop_mode = True
-        await m.reply("DEVELOP MODE فعال شد. فقط ادمین ها میتوانند از بات استفاده کنند")
-
-    elif query == "panel":
-        text =  f"""\
-{vsite}/panel?pass={user.id}{adminpass}
-"""
-        await m.reply(text)
-        
-async def sendGameMessage(data):
-    print(data)
-
-    
-
-
-client.run()
+if __name__ == "__main__":
+    client.run()
