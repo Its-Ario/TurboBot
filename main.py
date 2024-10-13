@@ -89,7 +89,8 @@ async def on_message(message:bale.Message):
         if text == "/start" or text == "🏠 بازگشت":
             await client.forward_message(message.chat.id,1386783796,55)
             keyboard = torow(
-                [("🤖 هوش مصنوعی"), ("🐍 بازی و دریافت سکه")],
+                [("🐍 بازی و دریافت سکه")],
+                [("🤖 هوش مصنوعی")],
                 [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                 [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                 [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -106,7 +107,7 @@ async def on_message(message:bale.Message):
             
             return await m.reply("🐍 برای بازی و دریافت سکه روی لینک زیر کلیک کنید!",components=torowinline(
                 [("شروع بازی", f"URL:{formmated_url}")],
-                [("دریافت امتیاز", f"getscore_{user_id}")]
+                [("برداشت سکه", f"getscore_{user_id}")]
             ))
 
         
@@ -128,7 +129,8 @@ async def on_message(message:bale.Message):
                 if text == "/start" or text == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
-                        [("🤖 هوش مصنوعی"), ("🐍 بازی و دریافت سکه")],
+                        [("🐍 بازی و دریافت سکه")],
+                        [("🤖 هوش مصنوعی")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -172,7 +174,8 @@ async def on_message(message:bale.Message):
             if d == "/start" or text == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
-                        [("🤖 هوش مصنوعی"), ("🐍 بازی و دریافت سکه")],
+                        [("🐍 بازی و دریافت سکه")],
+                        [("🤖 هوش مصنوعی")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -225,7 +228,8 @@ async def on_message(message:bale.Message):
             if name == "/start" or name == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
-                        [("🤖 هوش مصنوعی"), ("🐍 بازی و دریافت سکه")],
+                        [("🐍 بازی و دریافت سکه")],
+                        [("🤖 هوش مصنوعی")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -322,7 +326,8 @@ async def on_message(message:bale.Message):
             if name == "/start" or name == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
-                        [("🤖 هوش مصنوعی"), ("🐍 بازی و دریافت سکه")],
+                        [("🐍 بازی و دریافت سکه")],
+                        [("🤖 هوش مصنوعی")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -505,17 +510,18 @@ async def on_callback(callback_query:bale.CallbackQuery):
     elif query.startswith("getscore"):
         db = database.read_database()
         URL = "http://5.10.249.8:5000/get-score?hash={hash}"
-        
+
         user_id = query.removeprefix("getscore_")
         user_hash = hashlib.sha256(user_id.encode()).hexdigest()
         
         data = requests.get(URL.format(hash=user_hash)).json()
         if data.get("ok"):
-            db[str(user.id)]["coins"] += data["score"]
+            score = data["score"]
+            db[str(user.id)]["coins"] += score
             database.write_database(db)
-            return await m.reply("شما *{score}* سکه از  بازی بدست آوردید!".format(data["score"]))
+            return await m.reply("شما *{score}* سکه از  بازی بدست آوردید!".format(score=score))
         if data.get("error") == "User hash not found":
-            return await m.reply(f"امتیازی برای شما ثبت نشده!")
+            return await m.reply(f"سکه ای برای شما ثبت نشده!")
 
     elif query == "add_cta_one":
         
