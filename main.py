@@ -5,11 +5,12 @@ import json
 import database
 import random
 import hashlib
+
 ai_chat = 15
-logo_make = 20
-image_gen = 20
+logo_make = 15
+image_gen = 15
 font_maker = 10
-tts = 15
+tts = 10
 
 vsite = ""
 adminpass = 123456789
@@ -67,15 +68,26 @@ async def checkChannels(message:bale.Message):
     
     if not verified:        
         try:
-            lst = [[(f"کانال {cnt+1}", url)] for cnt, url in enumerate(channels.values())]
+            lst = [[(f"کانال اسپانسر {cnt+1}", url)] for cnt, url in enumerate(channels.values())]
 
             await message.reply(
-                "Join Channels:", 
+                """*سلام😉
+برای استفاده از ربات اول در کانال های زیر عضو شوید👇
+و بعد روی دکمه ی [استارت](send:/start)  بزنید❤️
+تا ربات شروع به کار کند❤️‍🔥*""", 
                 components=torowinline(*lst)
             )
         except Exception as e: print(e)
     
     return verified
+
+async def verifyUser(id:str) -> bale.User:
+    try:
+        user = await client.get_user(id)
+        if not user: return False
+        return user
+    except:
+        return False
 
 
 @client.event
@@ -88,6 +100,8 @@ async def on_ready():
 @client.event
 async def on_message(message:bale.Message):
     if develop_mode and message.author.id != developer : return print(f"DEVMODE : {message.author.id} - {message.content}")
+    if not message.author: return
+    
     text = message.content
     m = message
     user = message.author
@@ -96,15 +110,22 @@ async def on_message(message:bale.Message):
     if str(user.id) not in state.keys():
         database.create_database()
         db = database.read_database()
+
         if str(user.id) not in db.keys():
+            inviter = text.removeprefix("/start _ref_")
+            u = await verifyUser(inviter)
+            if inviter == text or not u or inviter == str(user.id):
+                inviter = None
             db[str(user.id)] = {
                 "uid": str(user.id),
                 "username": str(user.username),
                 "coins": 15,
+                "inviter": inviter
             }
+            db[str(u.id)]["coins"] += 5
             database.write_database(db)
             await client.send_message(user.id,"🤩 سلام عزیزم! به بات خوش اومدی! چون اولین باره باتو استارت میزنی، بهت 15 تا سکه دادم! برو عشق کن")
-        if text == "/start" or text == "🏠 بازگشت":
+        if text.startswith("/start") or text == "🏠 بازگشت":
             await client.forward_message(message.chat.id,1386783796,55)
             keyboard = torow(
                 [("🐍 بازی و دریافت سکه")],
@@ -132,12 +153,14 @@ async def on_message(message:bale.Message):
         elif text == "🤖 هوش مصنوعی":
             db = database.read_database()
             if db[str(user.id)]["coins"] < ai_chat:
-                await m.reply("💰 سکه شما کمه! برو سکه بگیر",components=torow(
+                await m.reply("💰 سکه شما کمه! برو سکه بگیر"
+                                "\nشما برای استفاده از این بخش {coin} سکه نیاز دارید!".format(coin=ai_chat),components=torow(
                     [("🏠 بازگشت")]
                 ))
                 return
             else:
-                await m.reply("🤖 لطفا متن خود را بنویسید",components=torow(
+                await m.reply("🤖 لطفا متن خود را بنویسید"
+                            "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=ai_chat),components=torow(
                     [("🏠 بازگشت")]
                 ))
                 state[str(user.id)] = "ai_chats"
@@ -167,11 +190,13 @@ async def on_message(message:bale.Message):
         elif text == "📷 ساخت لوگو":
             db = database.read_database()
             if db[str(user.id)]["coins"] < logo_make:
-                await m.reply("💰 سکه شما کمه! برو سکه بگیر",components=torow(
+                await m.reply("💰 سکه شما کمه! برو سکه بگیر"
+                                "\nشما برای استفاده از این بخش {coin} سکه نیاز دارید!".format(coin=logo_make),components=torow(
                     [("🏠 بازگشت")]
                 ))
                 return
-            await message.reply("🏞️ لطفا متن خود را بنویسید",components=torow(
+            await message.reply("🏞️ لطفا متن خود را بنویسید",
+                            "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=logo_make),components=torow(
                     [("🏠 بازگشت")]
                 ))
             state[str(user.id)] = "logo_make"
@@ -179,13 +204,26 @@ async def on_message(message:bale.Message):
         elif text == "🏞️ ساخت عکس":
             db  = database.read_database()
             if db[str(user.id)]["coins"] < image_gen:
-                await m.reply("💰 سکه شما کمه! برو سکه بگیر",components=torow(
+                await m.reply("💰 سکه شما کمه! برو سکه بگیر"
+                                "\nشما برای استفاده از این بخش {coin} سکه نیاز دارید!".format(coin=image_gen),components=torow(
                     [("🏠 بازگشت")]
                 ))
                 return
-            await m.reply("🏞️ لطفا متن خود را بنویسید",components=torow(
+            await m.reply("🏞️ لطفا متن خود را بنویسید"
+                            "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=image_gen),components=torow(
                     [("🏠 بازگشت")]
                 ))
+            
+            if name == "/start" or name == "🏠 بازگشت":
+                    await client.forward_message(message.chat.id,1386783796,55)
+                    keyboard = torow(
+                        [("🐍 بازی و دریافت سکه")],
+                        [("🤖 هوش مصنوعی")],
+                        [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
+                        [("✏️ ساخت فونت"),("🔊 متن به صدا")],
+                        [("👤 پشتیبانی"),("👤 حساب کاربری")]
+                    )
+                    return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
             def answer_checker(m:bale.Message):
                 return m.author == user and bool(m.text)
             d = await client.wait_for("message",check=answer_checker)
@@ -252,7 +290,7 @@ async def on_message(message:bale.Message):
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
                     )
-                    await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
+                    return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
 
             if set(name.text).issubset(fa_chars):
                 api_url = fa_api + name.text
@@ -332,11 +370,14 @@ async def on_message(message:bale.Message):
         elif text == "🔊 متن به صدا":
             db = database.read_database()
             if db[str(user.id)]["coins"] < tts:
-                await m.reply("💰 سکه شما کمه! برو سکه بگیر",components=torow(
+                await m.reply("💰 سکه شما کمه! برو سکه بگیر"
+                                "\nشما برای استفاده از این بخش {coin} سکه نیاز دارید!".format(coin=tts),components=torow(
                     [("🏠 بازگشت")]
                 ))
                 return
-            await m.reply("لطفاً متن مورد نظر خود را وارد کنید.")
+            await m.reply("لطفاً متن مورد نظر خود را وارد کنید."
+                            "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=tts),components=torow()
+)
             state[str(user.id)] = "text_to_voice:wait_for_name"
             def answer_checker(msg: bale.Message):
                 return msg.author == user and bool(msg.text)
@@ -393,8 +434,9 @@ async def on_message(message:bale.Message):
 👤 نام کاربری: @{user.username}
 💰 سکه‌های شما: {db[str(user.id)]["coins"]}
     """
-            await client.send_message(user.id, text, components=torow(
-                [("🏠 بازگشت")]
+            await client.send_message(user.id, text, components=torowinline(
+                [("🏁 بنر بات", "banner")],
+                [("🏠 بازگشت", "return")]
             ))
         
         elif (text == "/admin" or text == "/panel") and user.id in admins:
@@ -692,6 +734,33 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 msg = "No Channels Found!"
                         
             await m.reply(msg)
+            
+    elif query == "return":
+        await client.forward_message(m.chat.id,1386783796,55)
+        keyboard = torow(
+            [("🐍 بازی و دریافت سکه")],
+            [("🤖 هوش مصنوعی")],
+            [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
+            [("✏️ ساخت فونت"),("🔊 متن به صدا")],
+            [("👤 پشتیبانی"),("👤 حساب کاربری")]
+        )
+        await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
+        
+    elif query == "banner":
+        bannerImg = "./Assets/bannerImg.jpg"
+        linkTxt = f"ble.ir/{(await client.get_me()).username}?start=_ref_{user.id}"
+        
+        bannerTxt = """*سلام من تانجیرو هستم❤️‍🔥
+برترین ربات بله💯
+
+{link}
+
+بیا استارت کن و چند تا از قابلیتام رو ببین👆🥰*"""
+
+        with open(bannerImg, "rb") as img:
+            inpFile = bale.InputFile(img.read())
+            
+        await m.reply_photo(inpFile, caption=bannerTxt.format(link=linkTxt))
                         
 
 
