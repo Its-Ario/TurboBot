@@ -120,10 +120,13 @@ async def on_message(message:bale.Message):
                 "uid": str(user.id),
                 "username": str(user.username),
                 "coins": 15,
-                "inviter": inviter
+                "inviter": inviter,
+                "invited": 0
             }
             if u:
                 db[str(u.id)]["coins"] += 10
+                db[str(u.id)]["invited"] += 1
+                
             database.write_database(db)
             await client.send_message(user.id,"🤩 سلام عزیزم! به بات خوش اومدی! چون اولین باره باتو استارت میزنی، بهت 15 تا سکه دادم! برو عشق کن")
         if text.startswith("/start") or text == "🏠 بازگشت":
@@ -434,6 +437,7 @@ async def on_message(message:bale.Message):
 🆔 آیدی عددی: {user.id}
 👤 نام کاربری: @{user.username}
 💰 سکه‌های شما: {db[str(user.id)]["coins"]}
+👥 افراد دعوت شده: {db[str(user.id)]["invited"]}
     """
             await client.send_message(user.id, text, components=torowinline(
                 [("💰 دعوت دیگران", "banner")],
