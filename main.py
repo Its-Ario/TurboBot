@@ -122,7 +122,8 @@ async def on_message(message:bale.Message):
                 "coins": 15,
                 "inviter": inviter
             }
-            db[str(u.id)]["coins"] += 5
+            if u:
+                db[str(u.id)]["coins"] += 10
             database.write_database(db)
             await client.send_message(user.id,"🤩 سلام عزیزم! به بات خوش اومدی! چون اولین باره باتو استارت میزنی، بهت 15 تا سکه دادم! برو عشق کن")
         if text.startswith("/start") or text == "🏠 بازگشت":
@@ -435,7 +436,7 @@ async def on_message(message:bale.Message):
 💰 سکه‌های شما: {db[str(user.id)]["coins"]}
     """
             await client.send_message(user.id, text, components=torowinline(
-                [("🏁 بنر بات", "banner")],
+                [("💰 دعوت دیگران", "banner")],
                 [("🏠 بازگشت", "return")]
             ))
         
@@ -761,6 +762,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             inpFile = bale.InputFile(img.read())
             
         await m.reply_photo(inpFile, caption=bannerTxt.format(link=linkTxt))
+        await client.send_message(m.chat_id, "*شما با دعوت هر نفر با بنر بالا 10 سکه دریافت میکنید😍*")
                         
 
 
