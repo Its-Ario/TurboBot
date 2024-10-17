@@ -6,11 +6,14 @@ import database
 import random
 import hashlib
 
+from esmfamil import alphabetList, formatResponse
+
 ai_chat = 15
 logo_make = 15
 image_gen = 15
 font_maker = 10
 tts = 10
+esmfamil = 10
 
 vsite = ""
 adminpass = 123456789
@@ -423,8 +426,10 @@ async def on_message(message:bale.Message):
                         except:
                             pass
                         return
-            
-            
+                    
+        elif text == "esmfamil":
+            await message.reply("🔠 حرف موردنظر را انتخاب کنید:"
+                                "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=esmfamil), components=alphabetList())
 
         elif text == "👤 پشتیبانی":
 
@@ -767,6 +772,39 @@ async def on_callback(callback_query:bale.CallbackQuery):
             
         await m.reply_photo(inpFile, caption=bannerTxt.format(link=linkTxt))
         await client.send_message(m.chat_id, "*شما با دعوت هر نفر با بنر بالا 10 سکه دریافت میکنید😍*")
+        
+    elif query.startswith("esmfamil:"):
+        letter = query.removeprefix("esmfamil:")
+        db = database.read_database()
+        
+        url = f"https://api.codebazan.ir/esm-famil/?text={letter}"
+        
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        content = await response.read()
+                        formatted_message = formatResponse(content.decode())
+                        if db[str(user.id)]["coins"] < esmfamil:
+                            await m.reply("💰 سکه شما کمه! برو سکه بگیر"
+                                            "\nشما برای استفاده از این بخش {coin} سکه نیاز دارید!".format(coin=esmfamil),components=torow(
+                                [("🏠 بازگشت")]
+                            ))
+                            return
+                        db[str(user.id)]["coins"] -= esmfamil
+                        database.write_database(db)
+                        return await m.reply(formatted_message, components=torow(
+                            [("🏠 بازگشت")]
+                        ))
+                        
+                    return await m.reply("❌ خطا!", components=torow(
+                    [("🏠 بازگشت")]
+                ))
+            except KeyError as e:
+                print(e)
+                return await m.reply("❌ خطا!", components=torow(
+                    [("🏠 بازگشت")]
+                ))
                         
 
 
