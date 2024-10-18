@@ -5,6 +5,7 @@ import json
 import database
 import random
 import hashlib
+import re
 
 from esmfamil import alphabetList, formatResponse
 
@@ -14,6 +15,7 @@ image_gen = 15
 font_maker = 10
 tts = 10
 esmfamil = 10
+mvs = 10
 
 vsite = ""
 adminpass = 123456789
@@ -136,7 +138,7 @@ async def on_message(message:bale.Message):
             await client.forward_message(message.chat.id,1386783796,55)
             keyboard = torow(
                 [("🐍 بازی و دریافت سکه")],
-               [("🤖 هوش مصنوعی"), ("اسم فامیل")],
+                [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
                 [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                 [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                 [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -178,7 +180,7 @@ async def on_message(message:bale.Message):
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
-                        [("🤖 هوش مصنوعی"), ("اسم فامیل")],
+                        [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -202,7 +204,7 @@ async def on_message(message:bale.Message):
                     [("🏠 بازگشت")]
                 ))
                 return
-            await message.reply("🏞️ لطفا متن خود را بنویسید",
+            await message.reply("🏞️ لطفا متن خود را بنویسید"
                             "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=logo_make),components=torow(
                     [("🏠 بازگشت")]
                 ))
@@ -221,16 +223,6 @@ async def on_message(message:bale.Message):
                     [("🏠 بازگشت")]
                 ))
             
-            if name == "/start" or name == "🏠 بازگشت":
-                    await client.forward_message(message.chat.id,1386783796,55)
-                    keyboard = torow(
-                        [("🐍 بازی و دریافت سکه")],
-                       [("🤖 هوش مصنوعی"), ("اسم فامیل")],
-                        [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
-                        [("✏️ ساخت فونت"),("🔊 متن به صدا")],
-                        [("👤 پشتیبانی"),("👤 حساب کاربری")]
-                    )
-                    return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
             def answer_checker(m:bale.Message):
                 return m.author == user and bool(m.text)
             d = await client.wait_for("message",check=answer_checker)
@@ -238,7 +230,7 @@ async def on_message(message:bale.Message):
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
-                       [("🤖 هوش مصنوعی"), ("اسم فامیل")],
+                        [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -292,7 +284,7 @@ async def on_message(message:bale.Message):
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
-                       [("🤖 هوش مصنوعی"), ("اسم فامیل")],
+                        [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -393,7 +385,7 @@ async def on_message(message:bale.Message):
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
-                       [("🤖 هوش مصنوعی"), ("اسم فامیل")],
+                        [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
                         [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
@@ -427,9 +419,48 @@ async def on_message(message:bale.Message):
                             pass
                         return
                     
-        elif text == "اسم فامیل":
+        elif text == "😜 تقلب اسم فامیل":
             await message.reply("🔠 حرف موردنظر را انتخاب کنید:"
                                 "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=esmfamil), components=alphabetList())
+            
+        elif text == "سرچ فیلم":
+            db = database.read_database()
+            if db[str(user.id)]["coins"] < mvs:
+                await m.reply("💰 سکه شما کمه! برو سکه بگیر"
+                                "\nشما برای استفاده از این بخش {coin} سکه نیاز دارید!".format(coin=mvs),components=torow(
+                    [("🏠 بازگشت")]
+                ))
+                return
+            await message.reply("لطفا نام فیلم موردنظر را وارد کنید:"
+                                "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=mvs))
+            def answer_checker(msg: bale.Message):
+                return msg.author == user and bool(msg.text)
+            name = await client.wait_for("message", check=answer_checker)
+            sk = re.sub(r'\s+', ' ', name.content).strip()
+            async with aiohttp.ClientSession() as session:
+                try:
+                    url = f"https://www.omdbapi.com/?t={sk}&apikey=e430f1ee"
+                    async with session.get(url) as response:
+                        response.raise_for_status()
+                        data = await response.json()
+                        if data["Response"] == "False":
+                            return await message.reply("❌ فیلم پیدا نشد!", components=torow(
+                            [("🏠 بازگشت")]
+                        ))
+                        await message.reply(
+                            f"🎬 نام: {data['Title']}\n"
+                            f"📅 سال تولید: {data['Year']}\n"
+                            f"⭐ امتیاز: {data['Rated']}\n"
+                            f"🎞️ ژانر: {data['Genre']}\n"
+                            f"🎥 کارگردان: {data['Director']}\n"
+                            f"👥 بازیگران: {data['Actors']}", components=torow(
+                            [("🏠 بازگشت")]
+                        ))
+                        db[str(user.id)]["coins"] -= mvs
+                except Exception:
+                    return await message.reply("❌ خطا!", components=torow(
+                            [("🏠 بازگشت")]
+                        ))
 
         elif text == "👤 پشتیبانی":
 
@@ -466,7 +497,7 @@ async def on_message(message:bale.Message):
     if state.get(str(user.id)) == "ai_chat":
         if text == "🏠 بازگشت":
             await client.send_message(user.id, "بازگشت به منو",components=torow(
-               [("🤖 هوش مصنوعی"), ("اسم فامیل")],
+                [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
                 [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                 [("✏️ ساخت فونت")],
                 [("🔊 متن به صدا")],
@@ -496,7 +527,7 @@ async def on_message(message:bale.Message):
         ans = ans.content
         if text == "🏠 بازگشت":
             await client.send_message(user.id, "بازگشت به منو",components=torow(
-               [("🤖 هوش مصنوعی"), ("اسم فامیل")],
+                [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
                 [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
                 [("✏️ ساخت فونت")],
                 [("🔊 متن به صدا")],
@@ -749,7 +780,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         await client.forward_message(m.chat.id,1386783796,55)
         keyboard = torow(
             [("🐍 بازی و دریافت سکه")],
-           [("🤖 هوش مصنوعی"), ("اسم فامیل")],
+            [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
             [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
             [("✏️ ساخت فونت"),("🔊 متن به صدا")],
             [("👤 پشتیبانی"),("👤 حساب کاربری")]
