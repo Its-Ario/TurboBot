@@ -2,7 +2,7 @@ import sqlite3
 import json
 
 def create_database():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('Data/database.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS key_value_store
                         (key TEXT PRIMARY KEY, value TEXT)''')
