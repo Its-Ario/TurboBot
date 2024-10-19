@@ -549,7 +549,7 @@ async def on_message(message:bale.Message):
             api = "https://api.irateam.ir/Logo-Maker/?script="+random.choice(scripts)+"&fontsize=200&textcolor=red&text="+ans.replace(" ","")
             async with aiohttp.ClientSession() as session:
                 async with session.get(api) as response:
-                    data = await response.content.read()
+                    data = await response.read()
                     await client.send_photo(user.id, bale.InputFile(data), caption="لوگو شما ساخته شد",components=torow(
                         [("🏠 بازگشت")]
                     ))
