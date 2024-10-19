@@ -9,13 +9,13 @@ import re
 
 from esmfamil import alphabetList, formatResponse
 
-ai_chat = 15
+ai_chat = 10
 logo_make = 15
 image_gen = 15
 font_maker = 10
 tts = 10
 esmfamil = 10
-mvs = 10
+mvs = 5
 
 vsite = ""
 adminpass = 123456789
@@ -24,7 +24,8 @@ token = "1564793598:56MkimbBB3p1HyjuHBAZCppgdL5UDx4Q8iNtVbXO"
 
 owner = 429632558
 developer = 2089986546
-admins = [owner , developer]
+with open("data.json", "r") as f:
+    admins:list = json.load(f)["admins"]
 
 client = bale.Bot(token)
 
@@ -55,8 +56,8 @@ def torowinline(*row:list):
 async def checkChannels(message:bale.Message):
     verified = True
     join_channels = []
-    with open("joins.json", "r") as f:
-        join_channels = json.load(f)
+    with open("data.json", "r") as f:
+        join_channels = json.load(f)["joins"]
         channels = {}
         for channel in join_channels:
             try:
@@ -138,8 +139,9 @@ async def on_message(message:bale.Message):
             await client.forward_message(message.chat.id,1386783796,55)
             keyboard = torow(
                 [("🐍 بازی و دریافت سکه")],
-                [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
-                [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
+                [("🤖 هوش مصنوعی")],
+                [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+                [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
                 [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                 [("👤 پشتیبانی"),("👤 حساب کاربری")]
             )
@@ -180,8 +182,9 @@ async def on_message(message:bale.Message):
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
-                        [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
-                        [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
+                        [("🤖 هوش مصنوعی")],
+                        [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+                        [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
                     )
@@ -226,16 +229,17 @@ async def on_message(message:bale.Message):
             def answer_checker(m:bale.Message):
                 return m.author == user and bool(m.text)
             d = await client.wait_for("message",check=answer_checker)
-            if d == "/start" or text == "🏠 بازگشت":
+            if d.text == "/start" or d.text == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
-                        [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
-                        [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
+                        [("🤖 هوش مصنوعی")],
+                        [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+                        [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
                     )
-                    await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
+                    return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
             api_img = "https://heroapi.ir/api/lexica?query="+d.text
             try:
                 async with aiohttp.ClientSession() as session:
@@ -284,8 +288,9 @@ async def on_message(message:bale.Message):
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
-                        [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
-                        [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
+                        [("🤖 هوش مصنوعی")],
+                        [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+                        [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
                     )
@@ -385,8 +390,9 @@ async def on_message(message:bale.Message):
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
-                        [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
-                        [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
+                        [("🤖 هوش مصنوعی")],
+                        [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+                        [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
                     )
@@ -423,7 +429,7 @@ async def on_message(message:bale.Message):
             await message.reply("🔠 حرف موردنظر را انتخاب کنید:"
                                 "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=esmfamil), components=alphabetList())
             
-        elif text == "سرچ فیلم":
+        elif text == "🎞 جست و جوی فیلم":
             db = database.read_database()
             if db[str(user.id)]["coins"] < mvs:
                 await m.reply("💰 سکه شما کمه! برو سکه بگیر"
@@ -489,6 +495,9 @@ async def on_message(message:bale.Message):
                 [("🛡️ اضافه کردن کانال", "cha_add")],
                 [("🛡️ حذف کانال", "cha_del")],
                 [("🛡️ لیست کانال ها", "cha_list")],
+                [("🛡️ اضافه کردن ادمین", "admin_add")],
+                [("🛡️ حذف ادمین", "admin_del")],
+                [("🛡️ لیست ادمین", "admin_list")]
                 # [("👤 سایت پنل مدیریت","panel")]
             )
 
@@ -710,7 +719,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         clean = query.removeprefix("cha_")
         if clean == "add":
             state[str(user.id)] = "cha_add"
-            with open("joins.json", "r") as f:
+            with open("data.json", "r") as f:
                 current_data:list = json.load(f)
                 
             await m.reply("Enter Channel ID:")
@@ -718,17 +727,17 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 return m.author.id == user.id and bool(m.text)
             text = await client.wait_for("message",check=answer_checker)
             
-            if len(text.content) != 10 or not text.content.isnumeric():
+            if not text.content.isnumeric():
                 del state[str(user.id)]
                 return await text.reply("Invalid ID!")
             
-            if text.content in current_data:
+            if text.content in current_data["joins"]:
                 del state[str(user.id)]
                 return await text.reply("Channel Already Added!")
                 
-            current_data.append(text.content)
+            current_data["joins"].append(text.content)
             
-            with open("joins.json", "w") as f:
+            with open("data.json", "w") as f:
                 json.dump(current_data, f)
                 
             await text.reply(f"Added Channel {text.content}")
@@ -736,7 +745,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         elif clean == "del":
             state[str(user.id)] = "cha_del"
             
-            with open("joins.json", "r") as f:
+            with open("data.json", "r") as f:
                 current_data:list = json.load(f)
                 
             await m.reply("Enter Channel ID:")
@@ -744,13 +753,13 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 return m.author.id == user.id and bool(m.text)
             text = await client.wait_for("message",check=answer_checker)
             
-            if text.content not in current_data:
+            if text.content not in current_data["joins"]:
                 del state[str(user.id)]
                 return await text.reply("Channel Not In Database!")
             
-            current_data.remove(text.content)
+            current_data["joins"].remove(text.content)
             
-            with open("joins.json", "w") as f:
+            with open("data.json", "w") as f:
                 json.dump(current_data, f)
                 
             await text.reply(f"Removed Channel {text.content}")
@@ -759,11 +768,11 @@ async def on_callback(callback_query:bale.CallbackQuery):
         elif clean == "list":
             state[str(user.id)] = "cha_list"
             
-            with open("joins.json", "r") as f:
+            with open("data.json", "r") as f:
                 current_data:list = json.load(f)
             
             msg = ""
-            for channel_id in current_data:
+            for channel_id in current_data["joins"]:
                 try:
                     chat = await client.get_chat(channel_id)
                     msg += f"- [{chat.title}](https://{chat.invite_link}) ({f"{chat.username}, {channel_id}"})\n"
@@ -776,12 +785,83 @@ async def on_callback(callback_query:bale.CallbackQuery):
                         
             await m.reply(msg)
             
+    elif query.startswith("admin"):
+        clean = query.removeprefix("admin_")
+        if clean == "add":
+            state[str(user.id)] = "admin_add"
+            with open("data.json", "r") as f:
+                current_data:list = json.load(f)
+                
+            await m.reply("Enter User ID:")
+            def answer_checker(m:bale.Message):
+                return m.author.id == user.id and bool(m.text)
+            text = await client.wait_for("message",check=answer_checker)
+            
+            if not text.content.isnumeric():
+                del state[str(user.id)]
+                return await text.reply("Invalid ID!")
+            
+            if text.content in current_data["admins"]:
+                del state[str(user.id)]
+                return await text.reply("Admin Already Added!")
+                
+            current_data["admins"].append(text.content)
+            
+            with open("data.json", "w") as f:
+                json.dump(current_data, f)
+                
+            await text.reply(f"Added Admin {text.content}")
+            del state[str(user.id)]
+        elif clean == "del":
+            state[str(user.id)] = "admin_del"
+            
+            with open("data.json", "r") as f:
+                current_data = json.load(f)
+                
+            await m.reply("Enter User ID:")
+            def answer_checker(m:bale.Message):
+                return m.author.id == user.id and bool(m.text)
+            text = await client.wait_for("message",check=answer_checker)
+            
+            if text.content not in map(str, current_data["admins"]):
+                del state[str(user.id)]
+                return await text.reply("User Not In Database!")
+            
+            current_data["admins"].remove(int(text.content))
+            
+            with open("data.json", "w") as f:
+                json.dump(current_data, f)
+                
+            await text.reply(f"Removed Admin {text.content}")
+            del state[str(user.id)]
+            
+        elif clean == "list":
+            state[str(user.id)] = "admin_list"
+            
+            with open("data.json", "r") as f:
+                current_data:list = json.load(f)
+            
+            msg = ""
+            for user_id in current_data["admins"]:
+                try:
+                    chat = await client.get_user(user_id)
+                    msg += f"- {chat.first_name} ({f"{chat.username}, {user_id}"})\n"
+                except bale.error.BadRequest as e:
+                    if e.message == "Bad Request: message not found":
+                        msg += f"- _Invalid User_ ({user_id})\n"
+                        
+            if not msg:
+                msg = "No Admins Found!"
+                        
+            await m.reply(msg)
+            
     elif query == "return":
         await client.forward_message(m.chat.id,1386783796,55)
         keyboard = torow(
             [("🐍 بازی و دریافت سکه")],
-            [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
-            [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
+            [("🤖 هوش مصنوعی")],
+            [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+            [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
             [("✏️ ساخت فونت"),("🔊 متن به صدا")],
             [("👤 پشتیبانی"),("👤 حساب کاربری")]
         )
