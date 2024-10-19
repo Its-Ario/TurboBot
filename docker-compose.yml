@@ -1,0 +1,10 @@
+services:
+  turbo-bot:
+    image: turbo-bot:latest
+    container_name: turbo-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - /Data/TanjiroData/:/app/Data
+    command: python main.py
