@@ -8,4 +8,4 @@ multidict==6.1.0
 propcache==0.2.0
 python-bale-bot==2.5.0
 setuptools==69.0.3
-yarl==1.15.5
+yarl==1.15.1
