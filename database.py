@@ -23,3 +23,7 @@ def write_database(data_dict):
                         (key, json.dumps(value, default=list)))
     conn.commit()
     conn.close()
+
+
+if __name__ == "__main__":
+    create_database()
