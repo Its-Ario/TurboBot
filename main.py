@@ -5,6 +5,7 @@ import database
 import random
 import hashlib
 import re
+import time
 
 from esmfamil import alphabetList, formatResponse
 
@@ -923,4 +924,12 @@ async def on_callback(callback_query:bale.CallbackQuery):
 
 
 if __name__ == "__main__":
-    client.run()
+    while True:
+        try:
+            client.run()
+        except (KeyboardInterrupt, SystemExit):
+            print("Bot is stopping...")
+            break
+        except Exception as e:
+            print(f"Bot crashed due to an error: {e}. Restarting in 5 seconds...")
+            time.sleep(5)
