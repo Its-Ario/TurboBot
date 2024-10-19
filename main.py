@@ -22,11 +22,6 @@ adminpass = 123456789
 
 token = "1564793598:56MkimbBB3p1HyjuHBAZCppgdL5UDx4Q8iNtVbXO"
 
-owner = 429632558
-developer = 2089986546
-with open("data.json", "r") as f:
-    admins:list = json.load(f)["admins"]
-
 client = bale.Bot(token)
 
 develop_mode = False
@@ -99,13 +94,9 @@ async def verifyUser(id:str) -> bale.User:
 @client.event
 async def on_ready():
     print(f"Logged in as {client.user.username}")
-    await client.send_message(developer, f"🛡️ Logged in as @{client.user.username} at state {'*dev mode*' if develop_mode else '*public mode*'}\n[✅ start the bot](send:/start)")
-    #await client.send_message(owner, f"🛡️ Logged in as @{client.user.username} at state {'*dev mode*' if develop_mode else '*public mode*'}")
-
 
 @client.event
 async def on_message(message:bale.Message):
-    if develop_mode and message.author.id != developer : return print(f"DEVMODE : {message.author.id} - {message.content}")
     if not message.author: return
     
     text = message.content
@@ -278,7 +269,9 @@ async def on_message(message:bale.Message):
             fa_chars_support = ' , '.join(fa_chars)
             eng_chars_support = ' , '.join(eng_chars)
 
-            await m.reply(f"لطفاً متن مورد نظر خود را وارد کنید.\n```[حروف قابل استفاده]\nفارسی: {fa_chars_support}\nانگلیسی: {eng_chars_support}```")
+            await m.reply(f"لطفاً متن مورد نظر خود را وارد کنید.\n```[حروف قابل استفاده]\nفارسی: {fa_chars_support}\nانگلیسی: {eng_chars_support}```", components=torow(
+                    [("🏠 بازگشت")]
+                ))
             state[str(user.id)] = "font:wait_for_name"
             def answer_checker(msg: bale.Message):
                 return msg.author == user and bool(msg.text)
@@ -396,7 +389,7 @@ async def on_message(message:bale.Message):
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
                     )
-                    await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
+                    return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
             api_url = f"https://api.irateam.ir/create-voice/?text={name.text}&Character=FaridNeural"
             async with aiohttp.ClientSession() as session:
                 async with session.get(api_url) as resp:
@@ -438,10 +431,23 @@ async def on_message(message:bale.Message):
                 ))
                 return
             await message.reply("لطفا نام فیلم موردنظر را وارد کنید:"
-                                "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=mvs))
+                                "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=mvs), components=torow(
+                    [("🏠 بازگشت")]
+                ))
             def answer_checker(msg: bale.Message):
                 return msg.author == user and bool(msg.text)
             name = await client.wait_for("message", check=answer_checker)
+            if name == "/start" or name == "🏠 بازگشت":
+                    await client.forward_message(message.chat.id,1386783796,55)
+                    keyboard = torow(
+                        [("🐍 بازی و دریافت سکه")],
+                        [("🤖 هوش مصنوعی")],
+                        [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+                        [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
+                        [("✏️ ساخت فونت"),("🔊 متن به صدا")],
+                        [("👤 پشتیبانی"),("👤 حساب کاربری")]
+                    )
+                    return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
             sk = re.sub(r'\s+', ' ', name.content).strip()
             async with aiohttp.ClientSession() as session:
                 try:
@@ -486,7 +492,11 @@ async def on_message(message:bale.Message):
                 [("🏠 بازگشت", "return")]
             ))
         
-        elif (text == "/admin" or text == "/panel") and user.id in admins:
+        elif (text == "/admin" or text == "/panel"):
+            with open("data.json", "r") as f:
+                admins:list = json.load(f)["admins"]
+            if user.id not in admins: return
+            
             keyboard = torowinline(
                 [("🛡️ تعداد اعضا","users")],
                 [("🛡️ ارسال پیام به همه","sta")],
