@@ -1,6 +1,5 @@
 import bale
 import aiohttp
-import requests 
 import json
 import database
 import random
@@ -659,15 +658,19 @@ async def on_callback(callback_query:bale.CallbackQuery):
 
         user_id = query.removeprefix("getscore_")
         user_hash = hashlib.sha256(user_id.encode()).hexdigest()
-        
-        data = requests.get(URL.format(hash=user_hash)).json()
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(URL.format(hash=user_hash)) as response:
+                data = await response.json()
+
         if data.get("ok"):
             score = data["score"]
             db[str(user.id)]["coins"] += score
             database.write_database(db)
-            return await m.reply("شما *{score}* سکه از بازی بدست آوردید!".format(score=score))
+            return await m.reply(f"شما *{score}* سکه از بازی بدست آوردید!")
+        
         if data.get("error") == "User hash not found":
-            return await m.reply(f"سکه ای برای شما ثبت نشده!")
+            return await m.reply("سکه ای برای شما ثبت نشده!")
 
     elif query == "add_cta_one":
         
