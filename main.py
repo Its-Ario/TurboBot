@@ -136,7 +136,7 @@ async def on_message(message:bale.Message):
                 [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                 [("👤 پشتیبانی"),("👤 حساب کاربری")]
             )
-            await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
+            return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
         
         elif text == "🐍 بازی و دریافت سکه":
             URL = "http://5.10.249.8:5000/?hash={hash}"
@@ -423,6 +423,7 @@ async def on_message(message:bale.Message):
                                 "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=esmfamil), components=alphabetList())
             
         elif text == "🎞 جست و جوی فیلم":
+            state[str(user.id)] = "mvs"
             db = database.read_database()
             if db[str(user.id)]["coins"] < mvs:
                 await m.reply("💰 سکه شما کمه! برو سکه بگیر"
@@ -437,7 +438,7 @@ async def on_message(message:bale.Message):
             def answer_checker(msg: bale.Message):
                 return msg.author == user and bool(msg.text)
             name = await client.wait_for("message", check=answer_checker)
-            if name == "/start" or name == "🏠 بازگشت":
+            if name.content == "/start" or name.content == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
@@ -473,6 +474,9 @@ async def on_message(message:bale.Message):
                     return await message.reply("❌ خطا!", components=torow(
                             [("🏠 بازگشت")]
                         ))
+            try:
+                del state[str(user.id)]
+            except: ...
 
         elif text == "👤 پشتیبانی":
 
