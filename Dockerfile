@@ -12,5 +12,6 @@ RUN cp /app/Assets/message.py /usr/local/lib/python3.12/site-packages/bale/messa
 
 VOLUME /app/Data
 
+CMD ["python", "database.py"]
 CMD ["python", "main.py"]
 
