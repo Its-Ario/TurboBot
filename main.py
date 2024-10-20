@@ -185,6 +185,7 @@ async def on_message(message:bale.Message):
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
                     )
+                    del state[str(user.id)]
                     return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
                 
                 wait_message = await m.reply("لطفا صبر کنید...")
