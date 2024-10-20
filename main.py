@@ -57,7 +57,7 @@ def torowinline(*row:list):
 async def checkChannels(message:bale.Message):
     verified = True
     join_channels = []
-    with open("data.json", "r") as f:
+    with open("Data/data.json", "r") as f:
         join_channels = json.load(f)["joins"]
         channels = {}
         for channel in join_channels:
@@ -512,7 +512,7 @@ async def on_message(message:bale.Message):
             ))
         
         elif (text == "/admin" or text == "/panel"):
-            with open("data.json", "r") as f:
+            with open("Data/data.json", "r") as f:
                 admins:list = json.load(f)["admins"]
             if user.id not in admins: return
             
@@ -752,7 +752,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         clean = query.removeprefix("cha_")
         if clean == "add":
             state[str(user.id)] = "cha_add"
-            with open("data.json", "r") as f:
+            with open("Data/data.json", "r") as f:
                 current_data:list = json.load(f)
                 
             await m.reply("Enter Channel ID:")
@@ -770,7 +770,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 
             current_data["joins"].append(text.content)
             
-            with open("data.json", "w") as f:
+            with open("Data/data.json", "w") as f:
                 json.dump(current_data, f)
                 
             await text.reply(f"Added Channel {text.content}")
@@ -778,7 +778,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         elif clean == "del":
             state[str(user.id)] = "cha_del"
             
-            with open("data.json", "r") as f:
+            with open("Data/data.json", "r") as f:
                 current_data:list = json.load(f)
                 
             await m.reply("Enter Channel ID:")
@@ -792,7 +792,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             
             current_data["joins"].remove(text.content)
             
-            with open("data.json", "w") as f:
+            with open("Data/data.json", "w") as f:
                 json.dump(current_data, f)
                 
             await text.reply(f"Removed Channel {text.content}")
@@ -801,7 +801,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         elif clean == "list":
             state[str(user.id)] = "cha_list"
             
-            with open("data.json", "r") as f:
+            with open("Data/data.json", "r") as f:
                 current_data:list = json.load(f)
             
             msg = ""
@@ -822,7 +822,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         clean = query.removeprefix("admin_")
         if clean == "add":
             state[str(user.id)] = "admin_add"
-            with open("data.json", "r") as f:
+            with open("Data/data.json", "r") as f:
                 current_data:list = json.load(f)
                 
             await m.reply("Enter User ID:")
@@ -840,7 +840,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 
             current_data["admins"].append(text.content)
             
-            with open("data.json", "w") as f:
+            with open("Data/data.json", "w") as f:
                 json.dump(current_data, f)
                 
             await text.reply(f"Added Admin {text.content}")
@@ -848,7 +848,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         elif clean == "del":
             state[str(user.id)] = "admin_del"
             
-            with open("data.json", "r") as f:
+            with open("Data/data.json", "r") as f:
                 current_data = json.load(f)
                 
             await m.reply("Enter User ID:")
@@ -862,7 +862,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             
             current_data["admins"].remove(int(text.content))
             
-            with open("data.json", "w") as f:
+            with open("Data/data.json", "w") as f:
                 json.dump(current_data, f)
                 
             await text.reply(f"Removed Admin {text.content}")
@@ -871,7 +871,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         elif clean == "list":
             state[str(user.id)] = "admin_list"
             
-            with open("data.json", "r") as f:
+            with open("Data/data.json", "r") as f:
                 current_data:list = json.load(f)
             
             msg = ""
