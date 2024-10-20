@@ -284,7 +284,7 @@ async def on_message(message:bale.Message):
                 return msg.author == user and bool(msg.text)
             name = await client.wait_for("message", check=answer_checker)
             
-            if name == "/start" or name == "🏠 بازگشت":
+            if name.content == "/start" or name.content == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
@@ -294,6 +294,7 @@ async def on_message(message:bale.Message):
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
                     )
+                    del state[str(user.id)]
                     return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
 
             if set(name.text).issubset(fa_chars):
@@ -305,7 +306,8 @@ async def on_message(message:bale.Message):
                 end_range = 138
                 font_lang = "en"
             else:
-                await m.reply("خطا: لطفاً فقط از حروف فارسی یا فقط از حروف انگلیسی استفاده کنید.")
+                del state[str(user.id)]
+                return await m.reply("خطا: لطفاً فقط از حروف فارسی یا فقط از حروف انگلیسی استفاده کنید.")
                 
             
             async with aiohttp.ClientSession() as session:
@@ -380,13 +382,15 @@ async def on_message(message:bale.Message):
                 ))
                 return
             await m.reply("لطفاً متن مورد نظر خود را وارد کنید."
-                            "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=tts),components=torow()
-)
+                            "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=tts),components=torow(
+                    [("🏠 بازگشت")]
+                            )
+            )
             state[str(user.id)] = "text_to_voice:wait_for_name"
             def answer_checker(msg: bale.Message):
                 return msg.author == user and bool(msg.text)
             name = await client.wait_for("message", check=answer_checker)
-            if name == "/start" or name == "🏠 بازگشت":
+            if name.content == "/start" or name.content == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
