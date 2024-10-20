@@ -877,8 +877,11 @@ async def on_callback(callback_query:bale.CallbackQuery):
             msg = ""
             for user_id in current_data["admins"]:
                 try:
-                    chat = await client.get_user(user_id)
-                    msg += f"- {chat.first_name} ({f"{chat.username}, {user_id}"})\n"
+                    chat = await client.get_user((str(user_id)))
+                    if not chat: 
+                        msg += f"- _Invalid User_ ({user_id})\n"
+                    else:
+                        msg += f"- {chat.first_name} ({f"{chat.username}, {user_id}"})\n"
                 except bale.error.BadRequest as e:
                     if e.message == "Bad Request: message not found":
                         msg += f"- _Invalid User_ ({user_id})\n"
