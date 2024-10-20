@@ -831,7 +831,9 @@ async def on_callback(callback_query:bale.CallbackQuery):
             text = await client.wait_for("message",check=answer_checker)
             
             if not text.content.isnumeric():
-                del state[str(user.id)]
+                try:
+                    del state[str(user.id)]
+                except: ...
                 return await text.reply("Invalid ID!")
             
             if text.content in current_data["admins"]:
