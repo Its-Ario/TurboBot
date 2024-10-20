@@ -169,7 +169,7 @@ async def on_message(message:bale.Message):
                 def answer_checker(m:bale.Message):
                     return m.author.id == user.id and bool(m.text)
                 text = await client.wait_for("message",check=answer_checker)
-                if text == "/start" or text == "🏠 بازگشت":
+                if text.content == "/start" or text.content == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
                     keyboard = torow(
                         [("🐍 بازی و دریافت سکه")],
@@ -480,7 +480,9 @@ async def on_message(message:bale.Message):
 
         elif text == "👤 پشتیبانی":
 
-            await client.send_message(user.id,"آیدی مالک بات جهت پشتیبانی: @admin_turbo", components=None)
+            await client.send_message(user.id,"آیدی مالک بات جهت پشتیبانی و خرید سکه👨‍💻👇 @admin_turbo", components=torow(
+                            [("🏠 بازگشت")]
+                        ))
 
         elif text == "👤 حساب کاربری":
             db = database.read_database()
