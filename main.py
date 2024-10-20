@@ -400,6 +400,7 @@ async def on_message(message:bale.Message):
                         [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                         [("👤 پشتیبانی"),("👤 حساب کاربری")]
                     )
+                    del state[str(user.id)]
                     return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
             api_url = f"https://api.irateam.ir/create-voice/?text={name.text}&Character=FaridNeural"
             async with aiohttp.ClientSession() as session:
