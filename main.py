@@ -7,6 +7,12 @@ import hashlib
 import re
 import time
 
+from logging_config import setup_logging
+import logging
+
+setup_logging()
+logger = logging.getLogger(__name__)
+
 from esmfamil import alphabetList, formatResponse
 
 ai_chat = 10
@@ -65,7 +71,7 @@ async def checkChannels(message:bale.Message):
                     verified = False
                     channels[channel] = f"URL:https://{chat.invite_link}"
             except Exception as e:
-                print(e)
+                logger.error(e)
     
     if not verified:        
         try:
@@ -78,7 +84,7 @@ async def checkChannels(message:bale.Message):
 تا ربات شروع به کار کند❤️‍🔥*""", 
                 components=torowinline(*lst)
             )
-        except Exception as e: print(e)
+        except Exception as e: logger.error(e)
     
     return verified
 
@@ -93,7 +99,7 @@ async def verifyUser(id:str) -> bale.User:
 
 @client.event
 async def on_ready():
-    print(f"Logged in as {client.user.username}")
+    logger.info(f"Logged in as {client.user.username}")
 
 @client.event
 async def on_message(message:bale.Message):
@@ -932,7 +938,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
                     [("🏠 بازگشت")]
                 ))
             except KeyError as e:
-                print(e)
+                logger.error(e)
                 return await m.reply("❌ خطا!", components=torow(
                     [("🏠 بازگشت")]
                 ))
@@ -944,8 +950,8 @@ if __name__ == "__main__":
         try:
             client.run()
         except (KeyboardInterrupt, SystemExit):
-            print("Bot is stopping...")
+            logger.info("Bot is stopping...")
             break
         except Exception as e:
-            print(f"Bot crashed due to an error: {e}. Restarting in 5 seconds...")
+            logger.error(f"Bot crashed due to an error: {e}. Restarting in 5 seconds...")
             time.sleep(5)
