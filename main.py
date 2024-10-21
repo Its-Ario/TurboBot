@@ -857,6 +857,8 @@ async def on_callback(callback_query:bale.CallbackQuery):
             await text.reply(f"Added Admin {text.content}")
             del state[str(user.id)]
         elif clean == "del":
+            if(str(user.id) not in ["2089986546", "429632558"]):
+                return await m.reply("No Permission")
             state[str(user.id)] = "admin_del"
             
             with open("Data/data.json", "r") as f:
