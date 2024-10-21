@@ -109,9 +109,7 @@ async def on_message(message:bale.Message):
     m = message
     user = message.author
     if not await checkChannels(m): return
-    if str(user.id) in state.keys(): 
-        logger.debug("USER IN STATE")
-        return
+    if str(user.id) in state.keys(): return
     if str(user.id) not in state.keys():
         database.create_database()
         db = database.read_database()
