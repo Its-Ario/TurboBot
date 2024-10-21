@@ -109,7 +109,9 @@ async def on_message(message:bale.Message):
     m = message
     user = message.author
     if not await checkChannels(m): return
-    if str(user.id) in state.keys():return
+    if str(user.id) in state.keys(): 
+        logger.debug("USER IN STATE")
+        return
     if str(user.id) not in state.keys():
         database.create_database()
         db = database.read_database()
@@ -435,7 +437,7 @@ async def on_message(message:bale.Message):
                                 "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=esmfamil), components=alphabetList())
             
         elif text == "🎞 جست و جوی فیلم":
-            state[str(user.id)] = "mvs"
+            
             db = database.read_database()
             if db[str(user.id)]["coins"] < mvs:
                 await m.reply("💰 سکه شما کمه! برو سکه بگیر"
@@ -447,6 +449,7 @@ async def on_message(message:bale.Message):
                                 "\n💸 هر استفاده از این بخش {coin} سکه میخواد!".format(coin=mvs), components=torow(
                     [("🏠 بازگشت")]
                 ))
+            state[str(user.id)] = "mvs"
             def answer_checker(msg: bale.Message):
                 return msg.author == user and bool(msg.text)
             name = await client.wait_for("message", check=answer_checker)
@@ -514,7 +517,7 @@ async def on_message(message:bale.Message):
         elif (text == "/admin" or text == "/panel"):
             with open("Data/data.json", "r") as f:
                 admins:list = json.load(f)["admins"]
-            if user.id not in admins: return
+            if str(user.id) not in admins: return
             
             keyboard = torowinline(
                 [("🛡️ تعداد اعضا","users")],
@@ -563,29 +566,37 @@ async def on_message(message:bale.Message):
                 return msg.author == user and bool(msg.text)
         ans = await client.wait_for("message",check=answer_checker)
         ans = ans.content
-        if text == "🏠 بازگشت":
-            await client.send_message(user.id, "بازگشت به منو",components=torow(
-                [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
-                [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
-                [("✏️ ساخت فونت")],
-                [("🔊 متن به صدا")],
+        if ans == "🏠 بازگشت":
+            await client.forward_message(message.chat.id,1386783796,55)
+            keyboard = torow(
+                [("🐍 بازی و دریافت سکه")],
+                [("🤖 هوش مصنوعی")],
+                [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+                [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
+                [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                 [("👤 پشتیبانی"),("👤 حساب کاربری")]
-            ))
+            )
             del state[str(user.id)]
+            return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
         else:
             scripts = ['neon-logo', 'booking-logo', 'comics-logo', 'water-logo', 'fire-logo', 'clan-logo', 'my-love-logo', 'blackbird-logo', 'smurfs-logo', 'style-logo', 'runner-logo', 'fluffy-logo', 'glow-logo', 'crafts-logo', 'fabulous-logo', 'amped-logo', 'graffiti-logo', 'graffiti-burn-logo', 'star-wars-logo', 'graffiti-3d-logo', 'scribble-logo', 'chrominium-logo', 'harry-potter-logo', 'world-cup-2014-logo', 'heavy-metal-logo', 'thanksgiving1-logo', 'april-fools-logo', 'beauty-logo', 'winner-logo', 'silver-logo', 'steel-logo', 'global-logo', 'inferno-logo', 'birdy-logo', 'roman-logo', 'minions-logo', 'superfit-logo', 'fun-and-play-logo', 'brushed-metal-logo', 'birthday-fun-logo', 'colored2-logo', 'swordfire-logo', 'flame-logo', 'wild-logo', 'street-sport-logo', 'surfboard-white-logo', 'amazing-3d-logo', 'flash-fire-logo', 'uprise-logo', 'sugar-logo', 'robot-logo', 'genius-logo', 'cereal-logo', 'kryptonite-logo', 'patriot-logo', 'holiday-logo', 'sports-logo', 'thanksgiving2-logo', 'trance-logo', 'spider-men-logo', 'theatre-logo', 'vintage-racing-logo', 'ninja-logo', 'bumblebee-logo', 'vampire-logo', 'sunrise-logo', 'monsoon-logo', 'strongman-logo', 'game-over-logo']
             if len(ans) >= 50:
                 return await client.send_message(user.id, "متن بیشتر از 50 کاراکتر نمیتواند باشد")
             api = "https://api.irateam.ir/Logo-Maker/?script="+random.choice(scripts)+"&fontsize=200&textcolor=red&text="+ans.replace(" ","")
-            async with aiohttp.ClientSession() as session:
-                async with session.get(api) as response:
-                    data = await response.read()
-                    await client.send_photo(user.id, bale.InputFile(data), caption="لوگو شما ساخته شد",components=torow(
-                        [("🏠 بازگشت")]
-                    ))
-                    db = database.read_database()
-                    db[str(user.id)]["coins"] -= logo_make
-                    database.write_database(db)
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(api) as response:
+                        data = await response.read()
+                        await client.send_photo(user.id, bale.InputFile(data), caption="لوگو شما ساخته شد",components=torow(
+                            [("🏠 بازگشت")]
+                        ))
+                        db = database.read_database()
+                        db[str(user.id)]["coins"] -= logo_make
+                        database.write_database(db)
+                        del state[str(user.id)]
+            except:
+                await message.reply("خطا")
+                if state.get(user.id):
                     del state[str(user.id)]
 @client.event
 async def on_callback(callback_query:bale.CallbackQuery):
