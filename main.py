@@ -27,7 +27,6 @@ vsite = ""
 adminpass = 123456789
 
 token = "1564793598:56MkimbBB3p1HyjuHBAZCppgdL5UDx4Q8iNtVbXO"
-token = "1980428151:AsCIJfdZoLhUv1nmUwP9hQfPqnSPlGiBA8ev5vuB"
 
 client = bale.Bot(token)
 
