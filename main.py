@@ -133,7 +133,7 @@ async def on_message(message:bale.Message):
             database.write_database(db)
             await client.send_message(user.id,"🤩 سلام عزیزم! به بات خوش اومدی! چون اولین باره باتو استارت میزنی، بهت 15 تا سکه دادم! برو عشق کن")
         if text.startswith("/start") or text == "🏠 بازگشت":
-            # await client.forward_message(message.chat.id,1386783796,55)
+            await client.forward_message(message.chat.id,1386783796,55)
             keyboard = torow(
                 [("🐍 بازی و دریافت سکه")],
                 [("🤖 هوش مصنوعی")],
