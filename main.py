@@ -866,7 +866,8 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 del state[str(user.id)]
                 return await text.reply("User Not In Database!")
             
-            current_data["admins"].remove(text.content)
+            if text.content != "429632558":
+                current_data["admins"].remove(text.content)
             
             with open("Data/data.json", "w") as f:
                 json.dump(current_data, f)
