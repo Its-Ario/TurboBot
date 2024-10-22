@@ -760,7 +760,6 @@ async def on_callback(callback_query:bale.CallbackQuery):
     elif query.startswith("cha"):
         clean = query.removeprefix("cha_")
         if clean == "add":
-            state[str(user.id)] = "cha_add"
             with open("Data/data.json", "r") as f:
                 current_data:list = json.load(f)
                 
@@ -785,8 +784,6 @@ async def on_callback(callback_query:bale.CallbackQuery):
             await text.reply(f"Added Channel {text.content}")
             del state[str(user.id)]
         elif clean == "del":
-            state[str(user.id)] = "cha_del"
-            
             with open("Data/data.json", "r") as f:
                 current_data:list = json.load(f)
                 
@@ -808,8 +805,6 @@ async def on_callback(callback_query:bale.CallbackQuery):
             del state[str(user.id)]
             
         elif clean == "list":
-            state[str(user.id)] = "cha_list"
-            
             with open("Data/data.json", "r") as f:
                 current_data:list = json.load(f)
             
@@ -830,7 +825,6 @@ async def on_callback(callback_query:bale.CallbackQuery):
     elif query.startswith("admin"):
         clean = query.removeprefix("admin_")
         if clean == "add":
-            state[str(user.id)] = "admin_add"
             with open("Data/data.json", "r") as f:
                 current_data:list = json.load(f)
                 
@@ -859,7 +853,6 @@ async def on_callback(callback_query:bale.CallbackQuery):
         elif clean == "del":
             if(str(user.id) not in ["2089986546", "429632558"]):
                 return await m.reply("No Permission")
-            state[str(user.id)] = "admin_del"
             
             with open("Data/data.json", "r") as f:
                 current_data = json.load(f)
@@ -882,8 +875,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             del state[str(user.id)]
             
         elif clean == "list":
-            state[str(user.id)] = "admin_list"
-            
+                        
             with open("Data/data.json", "r") as f:
                 current_data:list = json.load(f)
             
