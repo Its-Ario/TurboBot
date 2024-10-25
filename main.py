@@ -673,7 +673,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 if not str(x).isalnum(): continue
                 try:
                     db[str(x)]["coins"] += int(answer.text)
-                    # await client.send_message(x,coin_msg)
+                    await client.send_message(x,coin_msg)
                     sended += 1
                 except:
                     failed += 1
