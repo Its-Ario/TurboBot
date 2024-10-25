@@ -6,6 +6,8 @@ import random
 import hashlib
 import re
 import time
+from dotenv import load_dotenv
+from os import getenv
 
 from logging_config import setup_logging
 import logging
@@ -14,6 +16,8 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 from esmfamil import alphabetList, formatResponse
+
+load_dotenv()
 
 ai_chat = 10
 logo_make = 15
@@ -26,7 +30,7 @@ mvs = 5
 vsite = ""
 adminpass = 123456789
 
-token = "1564793598:56MkimbBB3p1HyjuHBAZCppgdL5UDx4Q8iNtVbXO"
+token = getenv("TOKEN")
 
 client = bale.Bot(token)
 
@@ -668,7 +672,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             for x in users:
                 if not str(x).isalnum(): continue
                 try:
-                    db[str(user.id)]["coins"] += int(answer.text)
+                    db[str(x)]["coins"] += int(answer.text)
                     await client.send_message(x,coin_msg)
                     sended += 1
                 except:
