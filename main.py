@@ -108,8 +108,9 @@ async def on_ready():
 @client.event
 async def on_message(message:bale.Message):
     if not message.author: return
+    if message.author.is_bot: return
     
-    text = message.content
+    text = message.content or ""
     m = message
     user = message.author
     if not await checkChannels(m): return
@@ -400,24 +401,30 @@ async def on_message(message:bale.Message):
                     )
                     return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
             api_url = f"https://api.irateam.ir/create-voice/?text={name.text}&Character=FaridNeural"
-            async with aiohttp.ClientSession() as session:
-                async with session.get(api_url) as resp:
-                    if resp.status == 200:
-                        link = await resp.json()
-                                                
-                        async with aiohttp.ClientSession() as session:
-                            async with session.get(link["results"].get("url")) as resp:
-                                data = await resp.read()
-                                
-                                await client.send_audio(m.chat_id, bale.InputFile(data, file_name="Audio.mp3"),caption="صوت شما ساخته شد" , reply_to_message_id=m._id)
-                        
-                        db[str(user.id)]["coins"] -= tts
-                        return database.write_database(db)
-                    else:
-                        await m.reply("خطا در دریافت اطلاعات. لطفاً دوباره تلاش کنید.",components=torow(
-                            [("🏠 بازگشت")]
-                        ))
-                        return
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(api_url) as resp:
+                        if resp.status == 200:
+                            link = await resp.json()
+                                                    
+                            async with aiohttp.ClientSession() as session:
+                                async with session.get(link["results"].get("url")) as resp:
+                                    data = await resp.read()
+                                    
+                                    await client.send_audio(m.chat_id, bale.InputFile(data, file_name="Audio.mp3"),caption="صوت شما ساخته شد" , reply_to_message_id=m._id)
+                            
+                            db[str(user.id)]["coins"] -= tts
+                            return database.write_database(db)
+                        else:
+                            await m.reply("خطا در دریافت اطلاعات. لطفاً دوباره تلاش کنید.",components=torow(
+                                [("🏠 بازگشت")]
+                            ))
+                            return
+            except:
+                message.reply("خطا", components=torow(
+                                [("🏠 بازگشت")]
+                            ))
+                return
                     
         elif text == "😜 تقلب اسم فامیل":
             await message.reply("🔠 حرف موردنظر را انتخاب کنید:"
