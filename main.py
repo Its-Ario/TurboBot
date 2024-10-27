@@ -180,7 +180,7 @@ async def on_message(message:bale.Message):
                 def answer_checker(m:bale.Message):
                     try: del state[str(user.id)]
                     except: ...
-                    return m.chat_id == user.chat_id and bool(m.text)
+                    return m.author == user and bool(m.text)
                 text = await client.wait_for("message",check=answer_checker)
                 if text.content == "/start" or text.content == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
@@ -291,7 +291,7 @@ async def on_message(message:bale.Message):
             def answer_checker(msg: bale.Message):
                 try: del state[str(user.id)]
                 except: ...
-                return m.chat_id == user.chat_id and bool(m.text)
+                return msg.author == user and bool(msg.text)
             name = await client.wait_for("message", check=answer_checker)
             
             if name.content == "/start" or name.content == "🏠 بازگشت":
@@ -387,7 +387,7 @@ async def on_message(message:bale.Message):
             def answer_checker(msg: bale.Message):
                 try: del state[str(user.id)]
                 except: ...
-                return m.chat_id == user.chat_id and bool(m.text)
+                return msg.author == user and bool(msg.text)
             name = await client.wait_for("message", check=answer_checker)
             if name.content == "/start" or name.content == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
@@ -447,7 +447,7 @@ async def on_message(message:bale.Message):
             def answer_checker(msg: bale.Message):
                 try: del state[str(user.id)]
                 except: ...
-                return m.chat_id == user.chat_id and bool(m.text)
+                return msg.author == user and bool(msg.text)
             name = await client.wait_for("message", check=answer_checker)
             if name.content == "/start" or name.content == "🏠 بازگشت":
                     await client.forward_message(message.chat.id,1386783796,55)
@@ -556,7 +556,7 @@ async def on_message(message:bale.Message):
         def answer_checker(msg: bale.Message):
             try: del state[str(user.id)]
             except: ...
-            return m.chat_id == user.chat_id and bool(m.text)
+            return msg.author == user and bool(msg.text)
         ans = await client.wait_for("message",check=answer_checker)
         ans = ans.content
         if ans == "🏠 بازگشت":
@@ -607,7 +607,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         def answer_checker(m:bale.Message):
             try: del state[str(user.id)]
             except: ...
-            return m.chat_id == user.chat_id and (bool(m.text) or bool(m.caption))
+            return m.author == user and (bool(m.text) or bool(m.caption))
         answer = await client.wait_for("message",check=answer_checker)
         
         fw = False
@@ -653,7 +653,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         def answer_checker(msg: bale.Message):
             try: del state[str(user.id)]
             except: ...
-            return m.chat_id == user.chat_id and bool(m.text)
+            return msg.author == user and bool(msg.text)
         answer = await client.wait_for("message",check=answer_checker)
         if not answer.text.isnumeric():
             return await m.reply("ورودی نامتعبر")
@@ -715,7 +715,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         def answer_checker(msg: bale.Message):
             try: del state[str(user.id)]
             except: ...
-            return m.chat_id == user.chat_id and bool(m.text)
+            return msg.author == user and bool(msg.text)
         answer = await client.wait_for("message",check=answer_checker)
         while True:
             try:
@@ -735,7 +735,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         def answer_checker(msg: bale.Message):
             try: del state[str(user.id)]
             except: ...
-            return m.chat_id == user.chat_id and bool(m.text)
+            return msg.author == user and bool(msg.text)
         answer = await client.wait_for("message",check=answer_checker)
 
         while True:
@@ -764,7 +764,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             def answer_checker(msg: bale.Message):
                 try: del state[str(user.id)]
                 except: ...
-                return m.chat_id == user.chat_id and bool(m.text)
+                return msg.author == user and bool(msg.text)
             text = await client.wait_for("message",check=answer_checker)
             
             if not text.content.isnumeric():
@@ -787,7 +787,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             def answer_checker(msg: bale.Message):
                 try: del state[str(user.id)]
                 except: ...
-                return m.chat_id == user.chat_id and bool(m.text)
+                return msg.author == user and bool(msg.text)
             text = await client.wait_for("message",check=answer_checker)
             
             if text.content not in current_data["joins"]:
@@ -828,7 +828,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             def answer_checker(msg: bale.Message):
                 try: del state[str(user.id)]
                 except: ...
-                return m.chat_id == user.chat_id and bool(m.text)
+                return msg.author == user and bool(msg.text)
             text = await client.wait_for("message",check=answer_checker)
             
             if not text.content.isnumeric():
@@ -854,7 +854,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             def answer_checker(msg: bale.Message):
                 try: del state[str(user.id)]
                 except: ...
-                return m.chat_id == user.chat_id and bool(m.text)
+                return msg.author == user and bool(msg.text)
             text = await client.wait_for("message",check=answer_checker)
             
             if text.content not in map(str, current_data["admins"]):
