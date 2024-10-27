@@ -611,7 +611,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         answer = await client.wait_for("message",check=answer_checker)
         
         fw = False
-        if answer.forward_from:
+        if answer.forward_from is not None:
             fw = True
                     
         if answer.attachment:
