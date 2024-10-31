@@ -164,7 +164,7 @@ async def on_message(message:bale.Message):
                 [("👤 پشتیبانی"),("👤 حساب کاربری")]
             )
             
-            return await client.send_message(user.id, "۲ بازگشت به منو", components=keyboard)
+            return await client.send_message(user.id, "بازگشت به منو", components=keyboard)
         
         elif text == "🐍 بازی و دریافت سکه":
             URL = "http://5.10.249.8:5000/?hash={hash}"
@@ -174,10 +174,11 @@ async def on_message(message:bale.Message):
             
             formmated_url = URL.format(hash=user_hash)
             
-            return await m.reply("🐍 برای بازی و دریافت سکه روی لینک زیر کلیک کنید!",components=torowinline(
+            await m.reply("🐍 برای بازی و دریافت سکه روی لینک زیر کلیک کنید!",components=torowinline(
                 [("شروع بازی", f"URL:{formmated_url}")],
                 [("برداشت سکه", f"getscore_{user_id}")]
             ))
+            return
 
         
         elif text == "🤖 هوش مصنوعی":
@@ -195,22 +196,15 @@ async def on_message(message:bale.Message):
                 ))
                 state[str(user.id)] = "ai_chats"
                 def answer_checker(m:bale.Message):
-                    return m.author == user and bool(m.text)
+                    a = m.author == user and bool(m.text)
+                    if a:
+                        try: del state[str(user.id)]
+                        except: ...
+                    return a
+                
                 text = await client.wait_for("message",check=answer_checker)
                 if text.content == "/start" or text.content == "🏠 بازگشت":
-                    keyboard = torow(
-                        [("🐍 بازی و دریافت سکه")],
-                        [("🤖 هوش مصنوعی")],
-                        [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
-                        [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
-                        [("✏️ ساخت فونت"),("🔊 متن به صدا")],
-                        [("👤 پشتیبانی"),("👤 حساب کاربری")]
-                    )
-                    
-                    return await client.send_message(user.id, "بازگشت به منو", components=keyboard)
-                
-                try: del state[str(user.id)]
-                except: ...
+                    return
                 
                 wait_message = await m.reply("لطفا صبر کنید...")
                 async with aiohttp.ClientSession() as session:
@@ -248,22 +242,15 @@ async def on_message(message:bale.Message):
                 ))
             
             def answer_checker(m:bale.Message):
-                return m.author == user and bool(m.text)
+                a = m.author == user and bool(m.text)
+                if a:
+                    try: del state[str(user.id)]
+                    except: ...
+                return a
+            
             d = await client.wait_for("message",check=answer_checker)
             if d.text == "/start" or d.text == "🏠 بازگشت":
-                    keyboard = torow(
-                        [("🐍 بازی و دریافت سکه")],
-                        [("🤖 هوش مصنوعی")],
-                        [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
-                        [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
-                        [("✏️ ساخت فونت"),("🔊 متن به صدا")],
-                        [("👤 پشتیبانی"),("👤 حساب کاربری")]
-                    )
-                    
-                    return await client.send_message(user.id, "بازگشت به منو", components=keyboard)
-                
-            try: del state[str(user.id)]
-            except: ...
+                    return
             
             api_img = "https://heroapi.ir/api/lexica?query="+d.text
             try:
@@ -308,24 +295,15 @@ async def on_message(message:bale.Message):
                 ))
             state[str(user.id)] = "font:wait_for_name"
             def answer_checker(msg: bale.Message):
-                return msg.author == user and bool(msg.text)
+                a = msg.author == user and bool(msg.text)
+                if a:
+                    try: del state[str(user.id)]
+                    except: ...
+                return a
             name = await client.wait_for("message", check=answer_checker)
             
             if name.content == "/start" or name.content == "🏠 بازگشت":
-                    keyboard = torow(
-                        [("🐍 بازی و دریافت سکه")],
-                        [("🤖 هوش مصنوعی")],
-                        [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
-                        [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
-                        [("✏️ ساخت فونت"),("🔊 متن به صدا")],
-                        [("👤 پشتیبانی"),("👤 حساب کاربری")]
-                    )
-                    
-                    
-                    return await client.send_message(user.id, "بازگشت به منو", components=keyboard)
-                
-            try: del state[str(user.id)]
-            except: ...
+                    return
 
             if set(name.text).issubset(fa_chars):
                 api_url = fa_api + name.text
@@ -406,20 +384,12 @@ async def on_message(message:bale.Message):
             )
             state[str(user.id)] = "text_to_voice:wait_for_name"
             def answer_checker(msg: bale.Message):
+                try: del state[str(user.id)]
+                except: ...
                 return msg.author == user and bool(msg.text)
             name = await client.wait_for("message", check=answer_checker)
             if name.content == "/start" or name.content == "🏠 بازگشت":
-                    keyboard = torow(
-                        [("🐍 بازی و دریافت سکه")],
-                        [("🤖 هوش مصنوعی")],
-                        [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
-                        [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
-                        [("✏️ ساخت فونت"),("🔊 متن به صدا")],
-                        [("👤 پشتیبانی"),("👤 حساب کاربری")]
-                    )
-                    return await client.send_message(user.id, "بازگشت به منو", components=keyboard)
-            try: del state[str(user.id)]
-            except: ...
+                return
             api_url = f"https://api.irateam.ir/create-voice/?text={name.text}&Character=FaridNeural"
             try:
                 async with aiohttp.ClientSession() as session:
@@ -465,21 +435,14 @@ async def on_message(message:bale.Message):
                 ))
             state[str(user.id)] = "mvs"
             def answer_checker(msg: bale.Message):
-                return msg.author == user and bool(msg.text)
+                a = msg.author == user and bool(msg.text)
+                if a:
+                    try: del state[str(user.id)]
+                    except: ...
+                return a
             name = await client.wait_for("message", check=answer_checker)
             if name.content == "/start" or name.content == "🏠 بازگشت":
-                    keyboard = torow(
-                        [("🐍 بازی و دریافت سکه")],
-                        [("🤖 هوش مصنوعی")],
-                        [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
-                        [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
-                        [("✏️ ساخت فونت"),("🔊 متن به صدا")],
-                        [("👤 پشتیبانی"),("👤 حساب کاربری")]
-                    )
-                    
-                    return await client.send_message(user.id, "بازگشت به منو", components=keyboard)
-            try: del state[str(user.id)]
-            except: ...
+                return
             sk = re.sub(r'\s+', ' ', name.content).strip()
             async with aiohttp.ClientSession() as session:
                 try:
@@ -574,23 +537,15 @@ async def on_message(message:bale.Message):
                     database.write_database(db)
     elif state.get(str(user.id)) == "logo_make":
         def answer_checker(msg: bale.Message):
-            return msg.author == user and bool(msg.text)
+            a = msg.author == user and bool(msg.text)
+            if a:
+                try: del state[str(user.id)]
+                except: ...
+            return a
         ans = await client.wait_for("message",check=answer_checker)
         ans = ans.content
         if ans == "🏠 بازگشت":
-            keyboard = torow(
-                [("🐍 بازی و دریافت سکه")],
-                [("🤖 هوش مصنوعی")],
-                [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
-                [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
-                [("✏️ ساخت فونت"),("🔊 متن به صدا")],
-                [("👤 پشتیبانی"),("👤 حساب کاربری")]
-            )
-            
-            return await client.send_message(user.id, "بازگشت به منو", components=keyboard)
-        
-        try: del state[str(user.id)]
-        except: ...
+            return
         
         else:
             scripts = ['neon-logo', 'booking-logo', 'comics-logo', 'water-logo', 'fire-logo', 'clan-logo', 'my-love-logo', 'blackbird-logo', 'smurfs-logo', 'style-logo', 'runner-logo', 'fluffy-logo', 'glow-logo', 'crafts-logo', 'fabulous-logo', 'amped-logo', 'graffiti-logo', 'graffiti-burn-logo', 'star-wars-logo', 'graffiti-3d-logo', 'scribble-logo', 'chrominium-logo', 'harry-potter-logo', 'world-cup-2014-logo', 'heavy-metal-logo', 'thanksgiving1-logo', 'april-fools-logo', 'beauty-logo', 'winner-logo', 'silver-logo', 'steel-logo', 'global-logo', 'inferno-logo', 'birdy-logo', 'roman-logo', 'minions-logo', 'superfit-logo', 'fun-and-play-logo', 'brushed-metal-logo', 'birthday-fun-logo', 'colored2-logo', 'swordfire-logo', 'flame-logo', 'wild-logo', 'street-sport-logo', 'surfboard-white-logo', 'amazing-3d-logo', 'flash-fire-logo', 'uprise-logo', 'sugar-logo', 'robot-logo', 'genius-logo', 'cereal-logo', 'kryptonite-logo', 'patriot-logo', 'holiday-logo', 'sports-logo', 'thanksgiving2-logo', 'trance-logo', 'spider-men-logo', 'theatre-logo', 'vintage-racing-logo', 'ninja-logo', 'bumblebee-logo', 'vampire-logo', 'sunrise-logo', 'monsoon-logo', 'strongman-logo', 'game-over-logo']
@@ -627,9 +582,11 @@ async def on_callback(callback_query:bale.CallbackQuery):
         await sm(user.id,"✏️ متن پیام خود را بفرستید\n[لغو](send:لغو)")
         state[str(user.id)] = "sta"
         def answer_checker(m:bale.Message):
-            try: del state[str(user.id)]
-            except: ...
-            return m.author == user and (bool(m.text) or bool(m.caption))
+            a = m.author == user and (bool(m.text) or bool(m.caption))
+            if a:
+                try: del state[str(user.id)]
+                except: ...
+            return a
         answer = await client.wait_for("message",check=answer_checker)
         
         fw = False
@@ -656,7 +613,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         else:
             m = await sm(user.id,sf())
             for x in users:
-                if not str(x).isalnum(): continue
+                if not str(x).isnumeric(): continue
                 try:
                     if fw:
                         await client.forward_message(x, answer.chat_id, answer._id)
@@ -673,9 +630,12 @@ async def on_callback(callback_query:bale.CallbackQuery):
         await sm(user.id,"✏️ مقدار سکه موردنظر را ارسال کنید\n[لغو](send:لغو)")
         state[str(user.id)] = "add_cta"
         def answer_checker(msg: bale.Message):
-            try: del state[str(user.id)]
-            except: ...
-            return msg.author == callback_query.user and bool(msg.content)
+            a = msg.author == callback_query.user and bool(msg.content)
+            if a:
+                try: del state[str(user.id)]
+                except: ...
+            return a
+        
         answer = await client.wait_for("message",check=answer_checker)
         coins = answer.text
         if not coins.isnumeric():
@@ -724,7 +684,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
 
         if data.get("ok"):
             score = data["score"]
-            db[str(user.id)]["coins"] += score
+            db[str(user_id)]["coins"] += score
             database.write_database(db)
             return await m.reply(f"شما *{score}* سکه از بازی بدست آوردید!")
         
@@ -736,9 +696,13 @@ async def on_callback(callback_query:bale.CallbackQuery):
         await m.reply("آیدی عددی یا حروفی کاربر را بفرستید")
         state[str(user.id)] = "add_cta_one"
         def answer_checker(msg: bale.Message):
-            try: del state[str(user.id)]
-            except: ...
-            return msg.author == user and bool(msg.text)
+            a = msg.author == user and bool(msg.text)
+            if a:
+                try: del state[str(user.id)]
+                except: ...
+                
+            return a
+        
         answer = await client.wait_for("message",check=answer_checker)
         user = None
         try:
@@ -750,9 +714,11 @@ async def on_callback(callback_query:bale.CallbackQuery):
         await m.reply("تعداد پولی که میخواهید به کاربر اضافه کنید را بفرستید")
         state[str(user.id)] = "add_cta_one"
         def answer_checker(msg: bale.Message):
-            try: del state[str(user.id)]
-            except: ...
-            return msg.author == callback_query.user and bool(msg.text)
+            a = msg.author == callback_query.user and bool(msg.text)
+            if a:
+                try: del state[str(user.id)]
+                except: ...
+            return a
         answer = await client.wait_for("message",check=answer_checker)
         coins = answer.text
                 
@@ -777,9 +743,11 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 
             await m.reply("Enter Channel ID:")
             def answer_checker(msg: bale.Message):
-                try: del state[str(user.id)]
-                except: ...
-                return msg.author == user and bool(msg.text)
+                a = msg.author == user and bool(msg.text)
+                if a:
+                    try: del state[str(user.id)]
+                    except: ...
+                return a
             text = await client.wait_for("message",check=answer_checker)
             
             if not text.content.isnumeric():
@@ -800,9 +768,11 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 
             await m.reply("Enter Channel ID:")
             def answer_checker(msg: bale.Message):
-                try: del state[str(user.id)]
-                except: ...
-                return msg.author == user and bool(msg.text)
+                a = msg.author == user and bool(msg.text)
+                if a:
+                    try: del state[str(user.id)]
+                    except: ...
+                return a
             text = await client.wait_for("message",check=answer_checker)
             
             if text.content not in current_data["joins"]:
@@ -841,9 +811,11 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 
             await m.reply("Enter User ID:")
             def answer_checker(msg: bale.Message):
-                try: del state[str(user.id)]
-                except: ...
-                return msg.author == user and bool(msg.text)
+                a = msg.author == user and bool(msg.text)
+                if a:
+                    try: del state[str(user.id)]
+                    except: ...
+                return a 
             text = await client.wait_for("message",check=answer_checker)
             
             if not text.content.isnumeric():
@@ -867,9 +839,11 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 
             await m.reply("Enter User ID:")
             def answer_checker(msg: bale.Message):
-                try: del state[str(user.id)]
-                except: ...
-                return msg.author == user and bool(msg.text)
+                a = msg.author == user and bool(msg.text)
+                if a:
+                    try: del state[str(user.id)]
+                    except: ...
+                return a
             text = await client.wait_for("message",check=answer_checker)
             
             if text.content not in map(str, current_data["admins"]):
