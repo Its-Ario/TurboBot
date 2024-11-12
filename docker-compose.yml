@@ -8,3 +8,4 @@ services:
     volumes:
       - /Data/TanjiroData/:/app/Data
     command: python main.py
+    restart: on-failure

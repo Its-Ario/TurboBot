@@ -8,6 +8,7 @@ import re
 import time
 from dotenv import load_dotenv
 from os import getenv
+from bs4 import BeautifulSoup
 
 from logging_config import setup_logging
 import logging
@@ -30,7 +31,7 @@ mvs = 5
 vsite = ""
 adminpass = 123456789
 
-token = getenv("TOKEN")
+token = getenv("TOKEN_TEST")
 
 client = bale.Bot(token)
 
@@ -150,6 +151,7 @@ async def on_message(message:bale.Message):
                 [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
                 [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
                 [("✏️ ساخت فونت"),("🔊 متن به صدا")],
+                [("🌥️ کیفیت هوای تهران")],
                 [("👤 پشتیبانی"),("👤 حساب کاربری")]
             )
             return await client.send_message(user.id, "من چه کاری میتونم برات انجام بدم؟", components=keyboard)
@@ -161,6 +163,7 @@ async def on_message(message:bale.Message):
                 [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
                 [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
                 [("✏️ ساخت فونت"),("🔊 متن به صدا")],
+                [("🌥️ کیفیت هوای تهران")],
                 [("👤 پشتیبانی"),("👤 حساب کاربری")]
             )
             
@@ -468,6 +471,17 @@ async def on_message(message:bale.Message):
                     return await message.reply("❌ خطا!", components=torow(
                             [("🏠 بازگشت")]
                         ))
+                    
+        elif text == "🌥️ کیفیت هوای تهران":
+            url = "https://airnow.tehran.ir"
+            AQIdata = await getAQI(url)
+            
+            await message.reply("🌤️ *کیفیت هوای تهران*\n\n"
+            f"✅ شاخص فعلی: {AQIdata["now_AQI"] or "داده دریافت نشد"}\n"
+            f"⏰ شاخص ۲۴ ساعت گذشته: {AQIdata["24h_AQI"] or "داده دریافت نشد"}", components=torow(
+                            [("🏠 بازگشت")]
+                        ))
+        
         elif text == "👤 پشتیبانی":
 
             await client.send_message(user.id,"آیدی مالک بات جهت پشتیبانی و خرید سکه👨‍💻👇 @admin_turbo", components=torow(
@@ -885,6 +899,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
             [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
             [("✏️ ساخت فونت"),("🔊 متن به صدا")],
+            [("🌥️ کیفیت هوای تهران")],
             [("👤 پشتیبانی"),("👤 حساب کاربری")]
         )
         
@@ -940,16 +955,30 @@ async def on_callback(callback_query:bale.CallbackQuery):
                 return await m.reply("❌ خطا!", components=torow(
                     [("🏠 بازگشت")]
                 ))
+                
+async def getAQI(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            data = await response.text()
+            soup = BeautifulSoup(data, "html5lib")
+            
+            aqi_values = {}
+            aqi_24h_element = soup.find("span", {"id": "ContentPlaceHolder1_lblAqi24h"})
+            aqi_3h_element = soup.find("span", {"id": "ContentPlaceHolder1_lblAqi3h"})
+            
+            if aqi_24h_element:
+                aqi_values["24h_AQI"] = aqi_24h_element.get_text(strip=True)
+            else:
+                aqi_values["24h_AQI"] = None
+            
+            if aqi_3h_element:
+                aqi_values["now_AQI"] = aqi_3h_element.get_text(strip=True)
+            else:
+                aqi_values["now_AQI"] = None
+
+            return aqi_values
                         
 
 
 if __name__ == "__main__":
-    while True:
-        try:
-            client.run()
-        except (KeyboardInterrupt, SystemExit):
-            logger.info("Bot is stopping...")
-            break
-        except Exception as e:
-            logger.error(f"Bot crashed due to an error: {e}. Restarting in 5 seconds...")
-            time.sleep(5)
+    client.run()
