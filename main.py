@@ -497,6 +497,7 @@ async def on_message(message:bale.Message):
             
             try:
                 db[str(user.id)] -= aqi
+                database.write_database(db)
             except: ...
         
         elif text == "👤 پشتیبانی":
