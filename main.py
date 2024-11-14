@@ -32,7 +32,7 @@ aqi = 5
 vsite = ""
 adminpass = 123456789
 
-token = getenv("TOKEN")
+token = getenv("TOKEN_TEST")
 
 client = bale.Bot(token)
 
@@ -171,7 +171,7 @@ async def on_message(message:bale.Message):
             return await client.send_message(user.id, "بازگشت به منو", components=keyboard)
         
         elif text == "🐍 بازی و دریافت سکه":
-            URL = "http://5.10.249.8:5000/?hash={hash}"
+            URL = "http://5.10.248.134:5000/?hash={hash}"
             
             user_id = str(m.author.id)
             user_hash = hashlib.sha256(user_id.encode()).hexdigest()
@@ -488,17 +488,18 @@ async def on_message(message:bale.Message):
                 await message.reply("خطای اتصال به سرور")
                 return
             
+            try:
+                db[str(user.id)]["coins"] -= aqi
+                database.write_database(db)
+            except Exception as e:
+                logger.error(e)
+            
             await message.reply("📊 *کیفیت هوای تهران*\n\n"
             f"✅ شاخص فعلی: {AQIdata["now_AQI"] or "داده دریافت نشد"}\n"
             f"⏰ شاخص ۲۴ ساعت گذشته: {AQIdata["24h_AQI"] or "داده دریافت نشد"}\n\n"
             "{coins} سکه ازت کم شد".format(coins=aqi), components=torow(
                             [("🏠 بازگشت")]
                         ))
-            
-            try:
-                db[str(user.id)] -= aqi
-                database.write_database(db)
-            except: ...
         
         elif text == "👤 پشتیبانی":
 
@@ -705,7 +706,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
     
     elif query.startswith("getscore"):
         db = database.read_database()
-        URL = "http://5.10.249.8:5000/get-score?hash={hash}"
+        URL = "http://5.10.248.134:5000/get-score?hash={hash}"
 
         user_id = query.removeprefix("getscore_")
         user_hash = hashlib.sha256(user_id.encode()).hexdigest()
