@@ -5,11 +5,14 @@ attrs==24.2.0
 beautifulsoup4==4.12.3
 bs4==0.0.2
 frozenlist==1.4.1
+html5lib==1.1
 idna==3.10
 multidict==6.1.0
 propcache==0.2.0
 python-bale-bot==2.5.0
 python-dotenv==1.0.1
 setuptools==69.0.3
+six==1.16.0
 soupsieve==2.6
+webencodings==0.5.1
 yarl==1.15.5
