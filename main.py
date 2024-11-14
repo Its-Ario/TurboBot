@@ -31,7 +31,7 @@ mvs = 5
 vsite = ""
 adminpass = 123456789
 
-token = getenv("TOKEN_TEST")
+token = getenv("TOKEN")
 
 client = bale.Bot(token)
 
