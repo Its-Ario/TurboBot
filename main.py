@@ -27,6 +27,7 @@ font_maker = 10
 tts = 10
 esmfamil = 10
 mvs = 5
+aqi = 5
 
 vsite = ""
 adminpass = 123456789
@@ -473,14 +474,30 @@ async def on_message(message:bale.Message):
                         ))
                     
         elif text == "📊شاخص آلودگی هوای تهران":
+            db = database.read_database()
+            if db[str(user.id)]["coins"] < aqi:
+                await m.reply("💰 سکه شما کمه! برو سکه بگیر"
+                                "\nشما برای استفاده از این بخش {coin} سکه نیاز دارید!".format(coin=tts),components=torow(
+                    [("🏠 بازگشت")]
+                ))
+                return
             url = "https://airnow.tehran.ir"
             AQIdata = await getAQI(url)
             
-            await message.reply("🌤️ *کیفیت هوای تهران*\n\n"
+            if AQIdata["now_AQI"] is None and AQIdata["24h_AQI"] is None:
+                await message.reply("خطای اتصال به سرور")
+                return
+            
+            await message.reply("📊 *کیفیت هوای تهران*\n\n"
             f"✅ شاخص فعلی: {AQIdata["now_AQI"] or "داده دریافت نشد"}\n"
-            f"⏰ شاخص ۲۴ ساعت گذشته: {AQIdata["24h_AQI"] or "داده دریافت نشد"}", components=torow(
+            f"⏰ شاخص ۲۴ ساعت گذشته: {AQIdata["24h_AQI"] or "داده دریافت نشد"}\n\n"
+            "{coins} سکه ازت کم شد".format(aqi), components=torow(
                             [("🏠 بازگشت")]
                         ))
+            
+            try:
+                db[str(user.id)] -= aqi
+            except: ...
         
         elif text == "👤 پشتیبانی":
 
