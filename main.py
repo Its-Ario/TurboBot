@@ -491,7 +491,7 @@ async def on_message(message:bale.Message):
             await message.reply("📊 *کیفیت هوای تهران*\n\n"
             f"✅ شاخص فعلی: {AQIdata["now_AQI"] or "داده دریافت نشد"}\n"
             f"⏰ شاخص ۲۴ ساعت گذشته: {AQIdata["24h_AQI"] or "داده دریافت نشد"}\n\n"
-            "{coins} سکه ازت کم شد".format(aqi), components=torow(
+            "{coins} سکه ازت کم شد".format(coins=aqi), components=torow(
                             [("🏠 بازگشت")]
                         ))
             
