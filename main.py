@@ -28,11 +28,12 @@ tts = 10
 esmfamil = 10
 mvs = 5
 aqi = 5
+joke = 5
 
 vsite = ""
 adminpass = 123456789
 
-token = getenv("TOKEN")
+token = getenv("TOKEN_TEST")
 
 client = bale.Bot(token)
 
@@ -150,6 +151,7 @@ async def on_message(message:bale.Message):
                 [("🐍 بازی و دریافت سکه")],
                 [("🤖 هوش مصنوعی")],
                 [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+                [("🤣 جوک")],
                 [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
                 [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                 [("📊شاخص آلودگی هوای تهران")],
@@ -162,6 +164,7 @@ async def on_message(message:bale.Message):
                 [("🐍 بازی و دریافت سکه")],
                 [("🤖 هوش مصنوعی")],
                 [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+                [("🤣 جوک")],
                 [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
                 [("✏️ ساخت فونت"),("🔊 متن به صدا")],
                 [("📊شاخص آلودگی هوای تهران")],
@@ -477,7 +480,7 @@ async def on_message(message:bale.Message):
             db = database.read_database()
             if db[str(user.id)]["coins"] < aqi:
                 await m.reply("💰 سکه شما کمه! برو سکه بگیر"
-                                "\nشما برای استفاده از این بخش {coin} سکه نیاز دارید!".format(coin=tts),components=torow(
+                                "\nشما برای استفاده از این بخش {coin} سکه نیاز دارید!".format(coin=aqi),components=torow(
                     [("🏠 بازگشت")]
                 ))
                 return
@@ -500,6 +503,22 @@ async def on_message(message:bale.Message):
             "{coins} سکه ازت کم شد".format(coins=aqi), components=torow(
                             [("🏠 بازگشت")]
                         ))
+        elif text == "🤣 جوک":
+            db = database.read_database()
+            if db[str(user.id)]["coins"] < joke:
+                await m.reply("💰 سکه شما کمه! برو سکه بگیر"
+                                "\nشما برای استفاده از این بخش {coin} سکه نیاز دارید!".format(coin=joke),components=torow(
+                    [("🏠 بازگشت")]
+                ))
+                return
+            url = "https://api.codebazan.ir/jok/"
+            j = await fetch_joke(url)
+            if j is False:
+                await m.reply("❌ خطای اتصال به سرور")
+                return
+            await m.reply(j,components=torow(
+                    [("🏠 بازگشت")]
+                ))
         
         elif text == "👤 پشتیبانی":
 
@@ -544,30 +563,20 @@ async def on_message(message:bale.Message):
             await client.send_message(user.id,"دستورات مدیریتی",components=keyboard)
     
     if state.get(str(user.id)) == "ai_chat":
-        if text == "🏠 بازگشت":
-            await client.send_message(user.id, "بازگشت به منو",components=torow(
-                [("🤖 هوش مصنوعی"), ("😜 تقلب اسم فامیل")],
-                [("📷 ساخت لوگو") , ("🏞️ ساخت عکس")],
-                [("✏️ ساخت فونت")],
-                [("🔊 متن به صدا")],
-                [("👤 پشتیبانی"),("👤 حساب کاربری")]
-            ))
-
-        else:
-            db = database.read_database()
-            ai_api = "https://api-free.ir/api/bard.php?text="+text
-            async with aiohttp.ClientSession() as session:
-                async with session.get(ai_api) as response:
-                    data = await response.json()
-                    M = data["result"]
-                    await m.reply(
-                        M,
-                        components=torow(
-                            [("🏠 بازگشت")]
-                        )
+        db = database.read_database()
+        ai_api = "https://api-free.ir/api/bard.php?text="+text
+        async with aiohttp.ClientSession() as session:
+            async with session.get(ai_api) as response:
+                data = await response.json()
+                M = data["result"]
+                await m.reply(
+                    M,
+                    components=torow(
+                        [("🏠 بازگشت")]
                     )
-                    db[str(user.id)]["coins"] -= ai_chat
-                    database.write_database(db)
+                )
+                db[str(user.id)]["coins"] -= ai_chat
+                database.write_database(db)
     elif state.get(str(user.id)) == "logo_make":
         def answer_checker(msg: bale.Message):
             a = msg.author == user and bool(msg.text)
@@ -916,6 +925,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
             [("🐍 بازی و دریافت سکه")],
             [("🤖 هوش مصنوعی")],
             [("📷 ساخت لوگو"), ("😜 تقلب اسم فامیل")],
+            [("🤣 جوک")],
             [("🎞 جست و جوی فیلم") , ("🏞️ ساخت عکس")],
             [("✏️ ساخت فونت"),("🔊 متن به صدا")],
             [("📊شاخص آلودگی هوای تهران")],
@@ -996,6 +1006,20 @@ async def getAQI(url):
                 aqi_values["now_AQI"] = None
 
             return aqi_values
+        
+        
+async def fetch_joke(url):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    joke = await response.text()
+                    return joke
+                else:
+                    return False
+    except aiohttp.ClientError as e:
+        logger.error(e)
+        return False
                         
 
 
