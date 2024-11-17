@@ -28,7 +28,7 @@ tts = 10
 esmfamil = 10
 mvs = 5
 aqi = 5
-joke = 5
+joke = 10
 
 vsite = ""
 adminpass = 123456789
@@ -484,25 +484,11 @@ async def on_message(message:bale.Message):
                     [("🏠 بازگشت")]
                 ))
                 return
-            url = "https://airnow.tehran.ir"
-            AQIdata = await getAQI(url)
             
-            if AQIdata["now_AQI"] is None and AQIdata["24h_AQI"] is None:
-                await message.reply("خطای اتصال به سرور")
-                return
+            await m.reply("*برای استفاده از این قابلیت {coin} از شما کم میشود*\nآیا میخواهید ادامه دهید؟".format(coin=aqi), components=torowinline(
+                [("✅ ادامه", "aqi:continue")],
+            ))
             
-            try:
-                db[str(user.id)]["coins"] -= aqi
-                database.write_database(db)
-            except Exception as e:
-                logger.error(e)
-            
-            await message.reply("📊 *کیفیت هوای تهران*\n\n"
-            f"✅ شاخص فعلی: {AQIdata["now_AQI"] or "داده دریافت نشد"}\n"
-            f"⏰ شاخص ۲۴ ساعت گذشته: {AQIdata["24h_AQI"] or "داده دریافت نشد"}\n\n"
-            "{coins} سکه ازت کم شد".format(coins=aqi), components=torow(
-                            [("🏠 بازگشت")]
-                        ))
         elif text == "🤣 جوک":
             db = database.read_database()
             if db[str(user.id)]["coins"] < joke:
@@ -511,14 +497,11 @@ async def on_message(message:bale.Message):
                     [("🏠 بازگشت")]
                 ))
                 return
-            url = "https://api.codebazan.ir/jok/"
-            j = await fetch_joke(url)
-            if j is False:
-                await m.reply("❌ خطای اتصال به سرور")
-                return
-            await m.reply(j,components=torow(
-                    [("🏠 بازگشت")]
-                ))
+
+            await m.reply("*برای استفاده از این قابلیت {coin} از شما کم میشود*\nآیا میخواهید ادامه دهید؟".format(coin=joke), components=torowinline(
+                [("✅ ادامه", "joke:continue")],
+            ))
+            
         
         elif text == "👤 پشتیبانی":
 
@@ -536,6 +519,7 @@ async def on_message(message:bale.Message):
 👥 افراد دعوت شده: {db[str(user.id)]["invited"]}
     """
             await client.send_message(user.id, text, components=torowinline(
+                [("💰 اهدای سکه", "transfer")],
                 [("💰 دعوت دیگران", "banner")],
                 [("🏠 بازگشت", "return")]
             ))
@@ -712,6 +696,89 @@ async def on_callback(callback_query:bale.CallbackQuery):
                     failed += 1
                 await m.edit(sf())
                 
+    elif query == "aqi:continue":
+        db = database.read_database()
+        url = "https://airnow.tehran.ir"
+        AQIdata = await getAQI(url)
+        
+        if AQIdata["now_AQI"] is None and AQIdata["24h_AQI"] is None:
+            await m.edit("خطای اتصال به سرور")
+            return
+        
+        try:
+            db[str(user.id)]["coins"] -= aqi
+            database.write_database(db)
+        except Exception as e:
+            logger.error(e)
+        
+        await m.edit("📊 *کیفیت هوای تهران*\n\n"
+        f"✅ شاخص فعلی: {AQIdata["now_AQI"] or "داده دریافت نشد"}\n"
+        f"⏰ شاخص ۲۴ ساعت گذشته: {AQIdata["24h_AQI"] or "داده دریافت نشد"}\n\n"
+        "{coins} سکه ازت کم شد".format(coins=aqi), components=torow(
+                        [("🏠 بازگشت")]
+                    ))
+        
+    elif query == "joke:continue":
+            db = database.read_database()
+            url = "https://api.codebazan.ir/jok/"
+            j = await fetch_joke(url)
+            if j is False:
+                await m.edit("❌ خطای اتصال به سرور")
+                return
+            await m.edit(j,components=torow(
+                    [("🏠 بازگشت")]
+                ))
+            
+            db[str(user.id)]["coins"] -= joke
+            database.write_database(db)
+        
+    elif query == "transfer":
+        def answer_checker(msg: bale.Message):
+            a = msg.author == user and bool(msg.text)
+            if a:
+                try: del state[str(user.id)]
+                except: ...
+                
+            return a
+        db = database.read_database()
+        
+        await m.reply("آیدی عددی یوزر موردنظر را وارد کنید: ")
+        userID = await client.wait_for("message",check=answer_checker,timeout=500)
+        await m.reply("مقدار موردنظر را وارد کنید:  ")
+        amount = await client.wait_for("message",check=answer_checker,timeout=500)
+        
+        userID, amount = userID.content, amount.content
+        
+        if db.get(userID) is None:
+            return await m.reply("❌ یوزر نامعتبر")
+        
+        selfID = str(user.id)
+        userID = str(userID)
+        amount = str(amount)
+        
+        if not amount.isnumeric():
+            return await m.reply("❌ مقدار نامعتبر")
+        
+        if userID == selfID:
+            return await m.reply("❌ شما نمیتوانید به خودتان سکه منتقل کنید ")
+        
+        amount = int(amount)
+        
+        if amount > db[selfID]["coins"]:
+            return await m.reply("سکه کافی ندارید!")
+        try:
+            targetUser = await client.get_user(userID)
+        except:
+            await m.reply("خطای انتقال")
+            return
+        
+        db[selfID]["coins"] -= amount
+        db[userID]["coins"] += amount
+        
+        database.write_database(db)
+        
+        await m.reply(f"شما {amount} سکه به {targetUser.first_name} انتقال دادید!")
+    
     
     elif query.startswith("getscore"):
         db = database.read_database()
