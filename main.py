@@ -505,7 +505,7 @@ async def on_message(message:bale.Message):
         
         elif text == "👤 پشتیبانی":
 
-            await client.send_message(user.id,"آیدی مالک بات جهت پشتیبانی و خرید سکه👨‍💻👇 @admin_turbo", components=torow(
+            await client.send_message(user.id,"آیدی مالک بات جهت پشتیبانی و خرید سکه👨‍💻👇 @admin_turbo\n\nگروهه خرید و فروش سکه👇\nble.ir/join/GtkpuZh1Df", components=torow(
                             [("🏠 بازگشت")]
                         ))
 
