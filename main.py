@@ -5,7 +5,12 @@ import database
 import random
 import hashlib
 import re
-import time
+import g4f
+import g4f.Provider
+import io
+from PIL import Image
+from typing import Optional, Union
+from pathlib import Path
 from dotenv import load_dotenv
 from os import getenv
 from bs4 import BeautifulSoup
@@ -214,12 +219,27 @@ async def on_message(message:bale.Message):
                     return
                 
                 wait_message = await m.reply("لطفا صبر کنید...")
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(f'https://heroapi.ir/api/duckduckgo/chat?query={text.text}&model=gpt-4o-mini&timeout=30') as response:
-                        result = await response.json()
-                        await wait_message.edit(result["message"])
+                try:
+                    response, provider = await cycle_providers(text.content)
+
+                    if response:
                         db[str(user.id)]["coins"] -= ai_chat
                         database.write_database(db)
+                        logger.info(provider)
+                        await wait_message.edit(response,components=torow(
+                    [("🏠 بازگشت")]
+                ))
+                    else:
+                        await wait_message.edit("❌ هیچ ارائه‌دهنده‌ای پاسخ نداد.", components=torow(
+                    [("🏠 بازگشت")]
+                ))
+
+                except Exception as e:
+                    await wait_message.edit("❌ خطا",components=torow(
+                    [("🏠 بازگشت")]
+                ))
+                    logger.error(e)
+                return
 
         elif text == "📷 ساخت لوگو":
             db = database.read_database()
@@ -259,26 +279,16 @@ async def on_message(message:bale.Message):
             if d.text == "/start" or d.text == "🏠 بازگشت":
                     return
             
-            api_img = "https://heroapi.ir/api/lexica?query="+d.text
             try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(api_img) as resp:
-                        if resp.status == 200:
-                            link = await resp.json()
-                            img_url = random.choice(link.get("images"))["src"]
-                            async with aiohttp.ClientSession() as session:
-                                async with session.get(img_url) as resp:
-                                    if resp.status == 200:
-                                        data = await resp.read()
+                image = await generateImage(d.content)
+                await client.send_photo(m.chat_id, bale.InputFile(image), caption="عکس شما ساخته شد", reply_to_message_id=m._id)
 
-                                        data = bale.InputFile(data)
-                                        await client.send_photo(user.id,photo=data,caption=f"🏞️ {d.text}",components=torow(
-                                            [("🏠 بازگشت")]
-                                        ))
-            except:
-                await m.reply("❌ خطا")
+            except Exception as e:
+                logger.error(f"Image Error: {e}")
+                await d.reply("❌ خطا", components=torow(
+                    [("🏠 بازگشت")]
+                ))
                     
-
         elif text == "✏️ ساخت فونت":
             db = database.read_database()
             if db[str(user.id)]["coins"] < font_maker:
@@ -417,10 +427,11 @@ async def on_message(message:bale.Message):
                                 [("🏠 بازگشت")]
                             ))
                             return
-            except:
-                message.reply("خطا", components=torow(
+            except Exception as e:
+                await message.reply("خطا", components=torow(
                                 [("🏠 بازگشت")]
                             ))
+                logger.error(e)
                 return
                     
         elif text == "😜 تقلب اسم فامیل":
@@ -1074,6 +1085,94 @@ async def getAQI(url):
 
             return aqi_values
         
+async def cycle_providers(query_content):
+    PROVIDERS = [
+    g4f.Provider.Blackbox,
+    g4f.Provider.Phind,
+    g4f.Provider.Liaobots,
+    g4f.Provider.GeekGpt,
+    g4f.Provider.Raycast,
+    g4f.Provider.Airforce,
+    g4f.Provider.AmigoChat,
+    g4f.Provider.ChatGpt,
+    g4f.Provider.ChatGptEs,
+    g4f.Provider.Cloudflare,
+    g4f.Provider.Copilot,
+    g4f.Provider.DarkAI,
+    g4f.Provider.DDG,
+    g4f.Provider.DeepInfraChat,
+    g4f.Provider.Free2GPT,
+    g4f.Provider.FreeGpt,
+    g4f.Provider.GizAI,
+    g4f.Provider.Liaobots,
+    g4f.Provider.MagickPen,
+    g4f.Provider.PerplexityLabs,
+    g4f.Provider.Pi,
+    g4f.Provider.Pizzagpt,
+    g4f.Provider.Prodia,
+    g4f.Provider.Reka,
+    g4f.Provider.ReplicateHome,
+    g4f.Provider.RobocodersAPI,
+    g4f.Provider.RubiksAI,
+    g4f.Provider.TeachAnything,
+    g4f.Provider.Upstage,
+    g4f.Provider.You,
+    g4f.Provider.Mhystical
+]
+    for provider in PROVIDERS:
+        try:
+            response = await g4f.ChatCompletion.create_async(
+                model=g4f.models.gpt_4o_mini,
+                messages=[{"role": "user", "content": query_content}],
+                provider=provider,
+            )
+            if response:
+                return response, provider
+        except: ...
+    return None
+
+logger = logging.getLogger(__name__)
+
+async def generateImage(prompt: str, output_path: Optional[str] = None) -> Union[bytes, str, None]:
+    try:
+        HF_API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+        HF_API_KEY = getenv("HF_TOKEN")
+
+        headers = {
+            "Authorization": f"Bearer {HF_API_KEY}",
+            "Content-Type": "application/json",
+        }
+
+        payload = {
+            "inputs": prompt,
+            "options": {"wait_for_model": True}
+        }
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(HF_API_URL, headers=headers, json=payload) as response:
+                if response.status == 200:
+                    image_bytes = await response.read()
+                    
+                    if output_path:
+                        try:
+                            image = Image.open(io.BytesIO(image_bytes))
+                            output_path = Path(output_path)
+                            output_path.parent.mkdir(parents=True, exist_ok=True)
+                            image.save(output_path)
+                            return str(output_path)
+                        except Exception as e:
+                            logger.error(f"Failed to save image: {e}")
+                            return None
+                    
+                    return image_bytes
+                else:
+                    error_text = await response.text()
+                    logger.error(f"Failed to generate image: {response.status} {error_text}")
+                    return None
+                    
+    except Exception as e:
+        logger.error(f"An error occurred during image generation: {e}")
+        return None
         
 async def fetch_joke(url):
     try:
